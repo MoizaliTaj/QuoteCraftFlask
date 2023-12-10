@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="{{ url_for('static',filename='listprint.css') }}" >
+    </head>
+    <body>
+        {% if data|length > 0 %}
+            <img class="header" src="{{ url_for('static',filename='header.png') }}" >
+            <div class="header_text">
+                {% if storedata['Landline']|length > 0 %}<a href="tel: {{storedata['Landline']}}" target="_blank" style="text-decoration:none;color:black;">&#9742; {{storedata['Landline']}}</a> | {% endif %}
+                {% if storedata['Mobile']|length > 0 %}<a href="tel: {{storedata['Mobile']}}" target="_blank" style="text-decoration:none;color:black;">&#128241; {{storedata['Mobile']}}</a> | {% endif %}
+                {% if storedata['fax']|length > 0 %}Fax:- {{storedata['fax']}} | {% endif %}
+                {% if storedata['email']|length > 0 %}<a href="mailto: {{storedata['email']}}" target="_blank" style="text-decoration:none;color:black;">&#9993; {{storedata['email']}}</a> | {% endif %}
+                <STRONG>{{storedata['Display_Name']}}</STRONG>
+                {{storedata['TRN']}}
+                <br>
+                Proforma Invoice / Quotation
+            </div>
+            <div class="cust_details">
+                Customer Name : <strong>{{CustomerDetails['customer_name']}}</strong>
+                {% if InvoiceDetails['attention_to']|length > 0 %} (<strong>{{InvoiceDetails['attention_to']}}</strong>){% endif %}
+                {% if CustomerDetails['contact_number']|length > 0 %}<br>Contact Number : <strong>{{CustomerDetails['contact_number']}}</strong>{% endif %}
+                {% if InvoiceDetails['payment_terms']|length > 0 %}<br>Payment Terms &nbsp;&nbsp;: <strong>{{InvoiceDetails['payment_terms']}}</strong>{% endif %}
+            </div>
+            <div class="date_ref">
+                Date : <strong>{{Date_print}}</strong>
+                <br>
+                Reference # <strong>{{InvoiceDetails["invoice_id"]}}</strong>
+            </div>
+            {% if type=='invoice_normal' %}
+                <table class="tabledes">
+                    <tr><th class="border fontcust center head">Sr.</th><th class="border fontcust center head">Code</th><th class="border fontcust center head">Description</th><th class="border fontcust center head">Quantity</th><th class="border fontcust center head">Unit</th><th class="border fontcust center head">Unit Price</th><th class="border fontcust center head">Total</th></tr>
+                    {% for entry in data %}
+                        {% if loop.index % 2 == 0 %}
+                            <tr><td class="border fontcust center light" >{{loop.index}}</td><td class="border fontcust center light">{{entry[2]["code"]}}</td><td class="border fontcust left light">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center light">{{entry[2]["quantity"]}}</td><td class="border fontcust center light">{{entry[2]["unit"]}}</td><td class="border fontcust center light">{{entry[2]["price"]}}</td><td class="border fontcust center light">{{entry[2]["total"]}}</td></tr>
+                        {% else %}
+                            <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["quantity"]}}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust center dark">{{entry[2]["price"]}}</td><td class="border fontcust center dark">{{entry[2]["total"]}}</td></tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr><td colspan="4" class="left fontcust" rowspan="2" style="font-family: Calibri, sans-serif;font-size:medium;">Amount in words: <em>{{amount_in_words}}</em></td><td colspan="2" class="border center fontcust head">Total</td><td class="border center fontcust" style="padding:2px;">{{Gtotal}}</td></tr>
+                        <tr><td colspan="2" class="border center fontcust head">VAT @ 5%</td><td class="border center fontcust" style="padding:2px;">{{VAT}}</td></tr>
+                        <tr><td colspan="4"></td><td colspan="2" class="border center fontcust head">Total with VAT</td><td class="border center fontcust" style="padding:2px;">{{FinalTotal}}</td></tr>
+                </table>
+                <div class="notice" style="position: relative; top: -10px;">| Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
+                {% if data[0][1]["narration_external"]|length > 0 %}<pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -15px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
+            {% elif type=='invoice_exception' %}
+                <table class="tabledes">
+                    <tr><th class="border fontcust center head">Sr.</th><th class="border fontcust center head">Code</th><th class="border fontcust center head">Description</th><th class="border fontcust center head">Unit</th><th class="border fontcust center head">Unit Price</th></tr>
+                    {% for entry in data %}
+                        {% if loop.index % 2 == 0 %}
+                            <tr><td class="border fontcust center light" >{{loop.index}}</td><td class="border fontcust center light">{{entry[2]["code"]}}</td><td class="border fontcust left light">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center light">{{entry[2]["unit"]}}</td><td class="border fontcust center light">{{entry[2]["price"]}}</td></tr>
+                        {% else %}
+                            <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust center dark">{{entry[2]["price"]}}</td></tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                <div class="notice">| Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
+                {% if data[0][1]["narration_external"]|length > 0 %}<pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -10px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
+            {% endif %}
+<!--            <img src="{{ url_for('static',filename='stamp.png') }}" style="position: relative; top: -80px;left: 450px;">-->
+        {% else %}
+            <p>No items. To add items search the product then click on add to list.</p>
+        {% endif %}
+    </body>
+    <script>window.print()</script>
+</html>

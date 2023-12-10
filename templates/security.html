@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <title>{{title}}</title>
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
+        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="/">Company Name</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto">
+                        {% for nav in navbar %}
+                            <li class="nav-item"><a class="nav-link" href="{{nav[1]}}">{{nav[0]}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Begin page content -->
+        <main role="main" class="container-fluid" style="padding:80px 10px 10px 10px;">
+            <br><br>
+            {% if type=='change_password' %}
+                <h3>Change Password</h3>
+                <br>
+                <form  action="/change_password" method="POST">
+                    <table>
+                        <tr><td>Current Password</td><td><input type="password" id="password_current" name="password_current" required /></td></tr>
+                        <tr><td>New Password</td><td><input type="password" id="password_new" name="password_new" required /></td></tr>
+                        <tr><td>Re-enter New Password</td><td><input type="password" id="password_new_re" name="password_new_re" required /></td></tr>
+                    </table>
+                    {{message}}
+                    <br>
+                    <input class="button" type="submit" value = "Change Password" >
+                    <br>
+                    <br><p style="font-size:small">Minimum requirement: <br>password should be atleast 8 character long. <br>should contain atleast 1 upper case letter,<br>  1 lower case letter,<br> 1 number<br> and 1 special character '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '-', </p><br>
+                </form>
+            {% elif type=='login' %}
+                <form  action="/login" method="POST">
+                    <label>Username</label><input type="text" id="user" name="user" required /><br><br>
+                    <label>Password</label><input type="password" id="password" name="password" required /><br><br>
+                    <input class="button" type="submit" value = "Login" >
+                </form>
+            {% elif type=='password_expired' %}
+                <h3>Change Password</h3>
+                <p>You need to change your password before processing.</p>
+                <br>
+                <form  action="/login?view=change_password" method="POST">
+                    <table>
+                        <tr><td>User Name</td><td><input type="text" id="user" name="user" value='{{user_name}}' readonly /></td></tr>
+                        <tr><td>Current Password</td><td><input type="password" id="password_current" name="password_current" required /></td></tr>
+                        <tr><td>New Password</td><td><input type="password" id="password_new" name="password_new" required /></td></tr>
+                        <tr><td>Re-enter New Password</td><td><input type="password" id="password_new_re" name="password_new_re" required /></td></tr>
+                    </table>
+                    {{message}}
+                    <br>
+                    <input class="button" type="submit" value = "Change Password" >
+                    <br><p style="font-size:small">Minimum requirement: <br>password should be atleast 8 character long. <br>should contain atleast 1 upper case letter,<br>  1 lower case letter,<br> 1 number<br> and 1 special character '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '-', </p><br>
+                </form>
+            {% endif %}
+            <br><br>
+        </main>
+        <footer class="footer">
+            <div class="container" style="text-align: center;">
+            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+    </body>
+</html>

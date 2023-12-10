@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <title>{{title}}</title>
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
+        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+    </head>
+    <body>
+        <!-- Begin page content -->
+        <main role="main" class="container-fluid">
+            {% if type == 'search' %}
+                {% if sub_type == 'indi' %}
+                        <form action="/find">
+                            <input type="hidden" id="special" name="special" value="yes">
+                            <input type="hidden" id="invoice_id" name="invoice_id" value="{{special_invoice_id}}">
+                            <input type="hidden" id="type" name="type" value="indi">
+                            <input type="text" id="query" name="query" value="{{query}}" placeholder="Enter Key Word to Search" />
+                            <input class="button" type="submit" value="Search">
+                        </form>
+                    {% if data|length > 0 %}
+                        <a href="/find?special=yes&type=table&invoice_id={{special_invoice_id}}&query={{query}}&sort=">Switch to Table View</a><br>
+                        {% for entry in data %}
+                            <table>
+                                <tr><th colspan="2" style="text-align: center;font-size: x-large;">{{entry["code_value"]}}{% if entry["image"]|length > 0 %}<br><img src='https://docs.google.com/uc?export-download&id={{entry["image"]}}' alt="Product Image" style="max-width: 90vw;">{% endif %}</th></tr>
+                                <tr><td>Description:</td><td>{% if entry["description_sheet"]|length > 0 %}{{entry["description_sheet"]}}{% else %}{{entry["description_stock"]}}{% endif %}</td></tr>
+                                <tr><td>Brand:</td><td>{{entry["brand_val"]}}</td></tr>
+                                <tr><td>Size:</td><td>{{entry["size_val"]}}</td></tr>
+                                <tr><td>Packaging:</td><td>{{entry["packaging_val"]}}</td></tr>
+                                <tr><td>Cash Price:</td><td>AED {{entry["cash_val"]}} / {{entry["unit_val"]}}</td></tr>
+                                <tr><td>Sale Price:</td><td><strong>AED {{entry["sale_val"]}} / {{entry["unit_val"]}}</strong></td></tr>
+                                <tr><td>Stock:</td><td>{{entry["quantity"]}}</td></tr>
+                                <tr><td>Add to Performa</td><td><a href='/add?special=yes&invoice_id={{special_invoice_id}}&product_id={{entry["primarykey"]}}&search_type=indi&search_query={{query}}'><button class="button">Add</button></a></td></tr>
+                            </table>
+                            <br>
+                        {% endfor %}
+                    {% else %}
+                        <p> No results </p>
+                    {% endif %}
+                {% elif sub_type == 'table' %}
+                    <form action="/find">
+                        <input type="hidden" id="special" name="special" value="yes">
+                        <input type="hidden" id="invoice_id" name="invoice_id" value="{{special_invoice_id}}">
+                        <input type="hidden" id="type" name="type" value="table"><input type="text" id="query" name="query" value="{{query}}" placeholder="Enter Key Word to Search" /> <input class="button" type="submit" value="Search"></form>
+                    {% block resulttable %}
+                        {% if data|length > 0 %}
+                            <table>
+                            <tr><th>Sr. #</th><th><a href="?special=yes&type=table&query={{query}}&sort=code_value">Code</a></th><th><a href="?special=yes&type=table&query={{query}}&sort=description_sheet">Description</a></th><th><a href="?special=yes&type=table&query={{query}}&sort=brand_val">Brand</a></th><th><a href="?special=yes&type=table&query={{query}}&sort=size_val">Size</a></th><th><a href="?special=yes&type=table&query={{query}}&sort=packaging_val">Packaging</a></th><th><a href="?special=yes&type=table&query={{query}}&sort=cash_val">Cash Price</a></th><th><a href="?special=yes&type=table&query={{query}}&sort=sale_val">Sale Price</a></th><th><a href="?special=yes&type=table&query={{query}}&sort=quantity">Stock</a></th><th>Proforma</th></tr>
+                            {% for entry in data %}
+                                {% if loop.index % 2 == 0 %}
+                                    <tr>
+                                        <td class="dark">{{loop.index}}</td>
+                                        <td class="dark"><a href="/find?special=yes&type=indi&invoice_id={{special_invoice_id}}&query={{entry['code_value']}}">{{entry["code_value"]}}</a></td>
+                                        <td class="dark">{% if entry["description_sheet"]|length > 0 %}{{entry["description_sheet"]}}{% else %}{{entry["description_stock"]}}{% endif %}</td>
+                                        <td class="dark">{{entry["brand_val"]}}</td>
+                                        <td class="dark">{{entry["size_val"]}}</td>
+                                        <td class="dark">{{entry["packaging_val"]}}</td>
+                                        <td class="dark">AED {{entry["cash_val"]}} / {{entry["unit_val"]}}</td>
+                                        <td class="dark"><strong>AED {{entry["sale_val"]}} / {{entry["unit_val"]}}</strong></td>
+                                        <td class="dark">{{entry["quantity"]}}</td>
+                                        <td class="dark"><a href='/add?special=yes&invoice_id={{special_invoice_id}}&product_id={{entry["primarykey"]}}&search_type=table&search_query={{query}}'><button class="button">Add</button></a></td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="light">{{loop.index}}</td>
+                                        <td class="light"><a href="/find?special=yes&type=indi&invoice_id={{special_invoice_id}}&query={{entry['code_value']}}">{{entry["code_value"]}}</a></td>
+                                        <td class="light">{% if entry["description_sheet"]|length > 0 %}{{entry["description_sheet"]}}{% else %}{{entry["description_stock"]}}{% endif %}</td>
+                                        <td class="light">{{entry["brand_val"]}}</td>
+                                        <td class="light">{{entry["size_val"]}}</td>
+                                        <td class="light">{{entry["packaging_val"]}}</td>
+                                        <td class="light">AED {{entry["cash_val"]}} / {{entry["unit_val"]}}</td>
+                                        <td class="light"><strong>AED {{entry["sale_val"]}} / {{entry["unit_val"]}}</strong></td>
+                                        <td class="light">{{entry["quantity"]}}</td>
+                                        <td class="light"><a href='/add?special=yes&invoice_id={{special_invoice_id}}&product_id={{entry["primarykey"]}}&search_type=table&search_query={{query}}'><button class="button">Add</button></a></td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            </table>
+                        {% else %}
+                            <p> No results </p>
+                        {% endif %}
+                    {% endblock resulttable %}
+                {% endif %}
+            {% endif %}
+        </main>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+    </body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <title>{{title}}</title>
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
+        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="/">Company Name</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto">
+                        {% for nav in navbar %}
+                            <li class="nav-item"><a class="nav-link" href="{{nav[1]}}">{{nav[0]}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Begin page content -->
+        <main role="main" class="container-fluid" style="padding:80px 10px 10px 10px;">
+            <br>
+            <h2>Update Data Base</h2>
+            {% if type == 'upload' %}
+                <p>Read the instructions carefull before proceeding.</p>
+                <p>Upload all three files together.</p>
+                <br>
+                <form  action='/admin?view=db_update' method="POST"  enctype="multipart/form-data">
+                <table>
+                <tr><td>Upload Files</td><td><input class="input" type="file" id="files" name="files"  accept=".xls, .xlsx" multiple /></td></tr>
+                </table>
+                <br>
+                <input class="button" type="submit" value = "Upload">
+                </form>
+            {% elif type == 'update' %}
+                <div id="display_message">Excel Files are updated in the system. Database will be updated later.</div>
+            {% endif %}
+            <br>
+        </main>
+        <footer class="footer">
+            <div class="container" style="text-align: center;">
+            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+    </body>
+</html>

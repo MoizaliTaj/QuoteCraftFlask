@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <title>{{title}}</title>
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
+        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
+        <script>function addManual(){document.getElementById("addManual").innerHTML = '<input type="text" id="salesman_name" name="salesman_name" value="" />';}</script>
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="/">Company Name</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto">
+                        {% for nav in navbar %}
+                            <li class="nav-item"><a class="nav-link" href="{{nav[1]}}">{{nav[0]}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Begin page content -->
+        <main role="main" class="container-fluid" style="padding:80px 10px 10px 10px;">
+            <br>
+            {% if type=='add_customer' %}
+                <form  action="/invoice?view=add_customer" method="POST">
+                    <table>
+                        <tr><td>Customer Name</td><td><input type="text" id="cust_name" name="cust_name" required/></td></tr>
+                        <tr><td>Contact Number</td><td><input type="text" id="contact_no" name="contact_no" /></td></tr>
+                        <tr><td>Salesman Name</td><td id="addManual">
+                            <select name="salesman_name" id="salesman_name" required>
+                            <option value="" selected disabled hidden >Choose here</option>
+                            {% for salesman in salesman_list %}
+                                <option value="{{salesman[0]}}">{{salesman[0]}}</option>
+                            {% endfor %}
+                            </select><br>
+                            <a onClick="addManual()">Add Manually</a>
+                        </td></tr>
+                    </table>
+                    <br>
+                    <input class="button" type="submit" value = "Add Customer" >
+                </form>
+            {% elif type=='update_customer' %}
+                <form  action="/invoice?view=update_customer&customer_id={{customerID}}" method="POST">
+                    <table>
+                        <tr><td>Customer Name</td><td><input type="text" id="cust_name" name="cust_name" value="{{customername}}" required/></td></tr>
+                        <tr><td>Contact Number</td><td><input type="text" id="contact_no" name="contact_no" value="{{contactnumber}}" /></td></tr>
+                        <tr><td>Salesman Name</td><td id="addManual">
+                            <select name="salesman_name" id="salesman_name" required>
+                            <option value="{{salesman_name}}">{{salesman_name}}</option>
+                            {% for salesman in salesman_list %}
+                                <option value="{{salesman[0]}}">{{salesman[0]}}</option>
+                            {% endfor %}
+                            </select><br>
+                            <a onClick="addManual()">Add Manually</a>
+                        </td></tr>
+                    </table>
+                    <br>
+                    <input class="button" type="submit" value = "Update Customer" >
+                </form>
+            {% elif type=='add_invoice' %}
+                <form  action="/invoice?view=invoice_add&customer_id={{cust_id}}" method="POST">
+                    <table>
+                        <tr><td>Customer Name</td><td><input type="text" id="cust_name" name="cust_name" value="{{customername}}" readonly/></td></tr>
+                        <tr><td>Date</td><td><input type="date" id="date" name="date" value="{{date}}"/></td></tr>
+                        <tr><td>Payment Terms (Optional)</td><td><input type="text" id="payment_terms" name="payment_terms" value="{{payment_terms}}"/></td></tr>
+                        <tr><td>Attention To (Optional)</td><td><input type="text" id="attention_to" name="attention_to" /></td></tr>
+                        <tr><td>Narration (Optional)</td><td><input type="text" id="narration" name="narration" /></td></tr>
+                        <tr><td>External Narration (Optional)</td><td><textarea id="narration_external" name="narration_external" rows="4" cols="50"></textarea></td></tr>
+                    </table>
+                    <br>
+                    <input class="button" type="submit" value = "Add New Invoice" >
+                </form>
+            {% elif type=='update_invoice' %}
+                <form  action="invoice?view=invoice_edit&invoice_id={{InvoiceIndexData['invoice_id']}}" method="POST">
+                    <table>
+                        <tr><td>Date</td><td><input type="date" id="date" name="date" value="{{InvoiceIndexData['date']}}"/></td></tr>
+                        <tr><td>Payment Terms (Optional)</td><td><input type="text" id="payment_terms" name="payment_terms"  value="{{InvoiceIndexData['payment_terms']}}"/></td></tr>
+                        <tr><td>Attention To (Optional)</td><td><input type="text" id="attention_to" name="attention_to"  value="{{InvoiceIndexData['attention_to']}}"/></td></tr>
+                        <tr><td>Internal Narration (Optional)</td><td><input type="text" id="narration" name="narration"  value="{{InvoiceIndexData['narration']}}" /></td></tr>
+                        <tr><td>External Narration (Optional)</td><td><textarea id="narration_external" name="narration_external" rows="4" cols="50">{{InvoiceIndexData['narration_external']}}</textarea></td></tr>
+                    </table>
+                    <br>
+                    <input class="button" type="submit" value = "Update Invoice Details" >
+                </form>
+            {% elif type=='invoice_list' %}
+                <a href="/invoice?view=customer_list" style="text-decoration:none; font-size:small;">&#x2190 Back to customer list</a>
+                <br><br>
+                <h6>Customer Name: <a href="/invoice?view=update_customer&customer_id={{cust_id}}">{{customername}}</a></h6>
+                <br>
+                <a href="/invoice?view=invoice_add&customer_id={{cust_id}}"><button class="button">Add New Invoice</button></a>
+                <br><br>
+                <table>
+                    <tr><th>Sr.</th><th>Invoice ID</th><th>Date</th><th>Payment Terms</th><th></th><th colspan="2">Actions</th></tr>
+                    {% for entry in data %}
+                        <tr><td>{{loop.index}}</td><td>{{entry['invoice_id']}}</td><td>{{entry['date']}}</td><td>{{entry['payment_terms']}}</td><td><a href="/invoice?view=invoice_manager&invoice_id={{entry['invoice_id']}}">View</a></td><td><a href="/invoice?view=invoice_delete&invoice_id={{entry['invoice_id']}}">Delete</a></td></tr>
+                    {% endfor %}
+                </table>
+            {% elif type=='complete_invoice_list' %}
+                <a href="/invoice?view=customer_list" style="text-decoration:none; font-size:small;">&#x2190 Back to customer list</a>
+                <br><br>
+                <table>
+                    <tr><th>Sr.</th><th><a href="/invoice?view=all_invoice_list&sort=none">Invoice #</a></th><th>Date</th><th><a href="/invoice?view=all_invoice_list&sort=customer_name">Customer Name</a></th><th><a href="/invoice?view=all_invoice_list&sort=salesman_name">Salesman Name</a></th></tr>
+                    {% for entry in data %}
+                        <tr><td>{{loop.index}}</td><td><a href="/invoice?view=invoice_manager&invoice_id={{entry[0]}}">{{entry[0]}}</a></td><td>{{entry[3]}}</td><td>{{entry[1]}}</td><td>{{entry[2]}}</td></tr>
+                    {% endfor %}
+                </table>
+            {% elif type=='invoice_home' %}
+                <a href="/invoice?view=all_invoice_list"><input class="button" type="submit" value = "Invoice List"></a>&nbsp;&nbsp;<a href="/invoice?view=add_customer"><input class="button" type="submit" value = "Add New Customer"></a>
+                <br><br>
+                To add a performa for a new customer, first add new customer and then add invoice to that customer.
+                <br><br>
+                <table>
+                    <tr><th>Sr.</th><th><a href="/invoice?view=customer_list&sort=customer_name">Customer Name</a></th><th><a href="/invoice?view=customer_list&sort=salesman_name">Salesman Name</a></th></tr>
+                    {% for entry in data %}
+                    <tr><td>{{loop.index}}</td><td><a href="/invoice?view=invoice_list&customer_id={{entry[1]}}">{{entry[0]}}</a></td><td>{{entry[2]}}</td></tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            <br><br>
+        </main>
+        <footer class="footer">
+            <div class="container" style="text-align: center;">
+            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+    </body>
+</html>
+
+
+
+

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <title>{{title}}</title>
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
+        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="/">Company Name</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto">
+                        {% for nav in navbar %}
+                            <li class="nav-item"><a class="nav-link" href="{{nav[1]}}">{{nav[0]}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Begin page content -->
+        <main role="main" class="container-fluid" style="padding:80px 10px 10px 10px;">
+            <br><br>
+            {% if type=='not_admin' %}
+                <p>You are not Authorised.</p>
+                <meta http-equiv="Refresh" content="3; url='/'" />
+            {% elif type=='admin_home' %}
+                <ul>
+                    <li><a href="/admin?view=add_user">Add a new user</a></li>
+                    <li><a href="/admin?view=update_user">Update existing user.</a></li>
+                    <li><a href="/admin?view=logs">Logs</a></li>
+                </ul>
+            {% elif type=='admin_add' %}
+                <form  action="/admin?view=add_user" method="POST">
+                    <table style="border:0px">
+                        <tr style="border:0px"><td style="border:0px">Username</td><td style="border:0px"><input type="text" id="user" name="user" required /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">User Group</td><td style="border:0px"><input type="text" id="usergroup" name="usergroup" required /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">Store</td><td style="border:0px"><select name="store" id="store" required><option value="" selected disabled hidden >Choose here</option>{% for store in storedetails %}<option value="{{store[0]}}">{{store[0]}}</option>{% endfor %}</select><br></td></tr>
+                        <tr style="border:0px"><td style="border:0px">Type</td><td style="border:0px"><select name="type" id="type" required><option value="User">User</option><option value="Admin">Administrator</option></select></td></tr>
+                        <tr style="border:0px"><td style="border:0px"></td><td style="border:0px"><input type="submit" value="Add User" class="button"></td></tr>
+                    </table>
+                </form>
+            {% elif type=='add_success' %}
+                <p>User {{user_name}} added succesfully..</p>
+                <p>New login password is <input type="text" readonly value="{{new_password}}" /></p><br>
+    
+            {% elif type=='user_duplicate' %}
+                <p>Username entered already exists. Username must be unique. Try again.</p>
+                <meta http-equiv="Refresh" content="4; url='/admin?view=add_user'" />
+            {% elif type=='admin_update' %}
+                {% block userlist %}
+                    {% if data|length > 0 %}
+                        <p>Select user from the list below.</p>
+                        {% for entry in data %}
+                            <li><a href="/admin?view=update_user&user={{entry['user_name']}}">{{entry['user_name']}}</a></li>
+                        {% endfor %}
+                    {% else %}
+                        <p>No users</p>
+                    {% endif %}
+                {% endblock userlist%}
+            {% elif type=='logs' %}
+                <a href="/admin?view=logs_excel"><button class="button">Export to CSV</button></a>
+                <br><br>
+                <table>
+                    <tr><th>Sr.</th><th>User</th><th>Delete Type</th><th>Date Time</th><th>Info</th></tr>
+                    {% for entry in data %}
+                        <tr><td>{{loop.index}}</td><td>{{entry["user"]}}</td><td>{{entry["delete_type"]}}</td><td>{{entry["date_time"]}}</td><td><pre>{{entry["info"]}}</pre></td></tr>
+                    {% endfor %}
+                </table>
+            {% elif type=='user_edit' %}
+                <form  action="/admin?view=update_user" method="POST">
+                    <table style="border:0px">
+                        <tr style="border:0px"><td style="border:0px">Username</td><td style="border:0px"><input type="text" id="user" name="user" value='{{userdata["user_name"]}}' readonly /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">UserGroup</td><td style="border:0px"><input type="text" id="usergroup" name="usergroup" value='{{userdata["user_group"]}}' required /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">Store</td><td style="border:0px"><select name="store" id="store" required><option value='{{userdata["store"]}}'>{{userdata["store"]}}</option>{% for store in storedetails %}{% if store[0] != userdata["store"] %}<option value="{{store[0]}}">{{store[0]}}</option>{% endif %}{% endfor %}</select><br></td></tr>
+                        <tr style="border:0px"><td style="border:0px">Type</td><td style="border:0px"><select name="type" id="type" required><option value='{{userdata["type"]}}'>{{userdata["type"]}}</option>{% if userdata["type"] == 'User' %}<option value="Admin">Administrator</option>{% else %}<option value="User">User</option>{% endif %}</select></td></tr>
+                        <tr style="border:0px"><td style="border:0px"></td><td style="border:0px"><input type="submit" class="button" value = "Update"></td></tr>
+                    </table>
+                </form>
+                <br><br>
+                <a href='/admin?view=update_user_password&user={{userdata["user_name"]}}'><button class="button">Reset Password for {{userdata["user_name"]}}</button></a>
+            {% elif type=='user_update_success' %}
+                <p>Details updated succesfully.</p>
+                <meta http-equiv="Refresh" content="3; url='/admin'" />
+            {% elif type=='user_update_no_user' %}
+                <p>Error has occured. Try Again</p>
+                <meta http-equiv="Refresh" content="3; url='/admin?view=update_user'" />
+            {% elif type=='change_password_permission' %}
+                <p>Are you sure you want to reset password for <strong>{{user_name}}</strong></p>
+                <table style="border:0px;"><tr style="border:0px;"><td style="border:0px;"><form action='/admin?view=update_user_password&user={{user_name}}' method="POST"><input type="submit" value="Yes Reset Password" class="button"></form></td><td style="border:0px;"><a href='/admin?view=update_user&user={{user_name}}'><button class="button">No</button></a></td></tr></table>
+            {% elif type=='change_password_confirmation' %}
+                <p>Password is succesfully reset for <strong>{{user_name}}</strong></p>
+                <p>New login password is <input type="text" readonly value="{{new_password}}" /></p><br>
+                <p>Please note user will be prompted to change password on there next login</p>
+            {% endif %}
+        </main>
+        <footer class="footer">
+            <div class="container" style="text-align: center;">
+            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+    </body>
+</html>
+
+
+

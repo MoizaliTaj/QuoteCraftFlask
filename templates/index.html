@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <title>{{title}}</title>
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
+        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="/">Company Name</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto">
+                        {% for nav in navbar %}
+                            <li class="nav-item"><a class="nav-link" href="{{nav[1]}}">{{nav[0]}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Begin page content -->
+        <main role="main" class="container-fluid" style="padding:80px 10px 10px 10px;">
+            <h1 class="mt-5">Home Page</h1>
+            <p class="lead">Authorised users only.<br><br>Below are the features of this site.</p>
+            <ul>
+                <li><a href="/find?type=indi">Search (Normal)</a><br>This features allows you to search for a product. This mode is good for searching one product at a time.</li><br>
+                <li><a href="/find?type=table">Search (Table)</a><br>This features allows you to search for a product. This mode provides the output in a table format. It is usefull for searching bulk by providing keywords.</li><br>
+                <li><a href="/invoice?view=customer_list">Proforma</a><br>After searching for a product you can add it to the perform for a specific customer. To check, edit and print the list of items added to the customers performa this fetaure can be used.</li><br>
+                <li><input type="text" id="searchquery" name="searchquery" value="{{query}}" placeholder="Enter Key Word to Search" />&nbsp;&nbsp;<button class="button" onclick="search('indi')">Search Normal</button>&nbsp;&nbsp;<button class="button" onclick="search('table')">Search Table</button></li><br>
+            </ul>
+            <p class="lead">Altough I have tried to ensure the data is accurate but its still in testing phase hence the same cannot be guaranteed.</p>
+            <p class="lead">Also check the last updated date and time in the footer. This shows the last time excel data was imported to this app. </p>
+        </main>
+        <footer class="footer">
+            <div class="container" style="text-align: center;">
+            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+    </body>
+</html>
