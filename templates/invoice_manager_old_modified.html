@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <title>{{title}}</title>
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
+        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+        <script src="{{ url_for('static',filename='calc.js') }}"></script>
+        <script src="{{ url_for('static',filename='shortcut.js') }}"></script>
+     </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="/">Quote Craft</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto">
+                        {% for nav in navbar %}
+                            <li class="nav-item"><a class="nav-link" href="{{nav[1]}}">{{nav[0]}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Begin page content -->
+        <main role="main" class="container-fluid" style="padding:80px 10px 10px 10px;">
+            <a href="/invoice?view=invoice_list&customer_id={{customer_id}}" style="text-decoration:none; font-size:small;">&#x2190 Back to Invoice list for {{customername}}</a>
+            <br><br>
+            <h5>Customer Name : <a href="/invoice?view=update_customer&customer_id={{customer_id}}">{{customername}}</a></h5>
+            <h5>Invoice ID : <a href="invoice?view=invoice_edit&invoice_id={{invoice_data['invoice_id']}}">{{invoice_data['invoice_id']}}</a></h5>
+            <h6>Date: {{date_quote}}</h6>
+            <br>
+            {% if data|length > 0 %}
+                <a href="/invoice?view=invoice_print&invoice_id={{invoice_data['invoice_id']}}&sort_by={{sorter}}&print_type=normal" target="_blank"><button class="button">Print</button></a>&nbsp;&nbsp;&nbsp;
+                <a href="/invoice?view=invoice_print&invoice_id={{invoice_data['invoice_id']}}&sort_by={{sorter}}&print_type=without_quantity" target="_blank"><button class="button">Print (Without Quantity)</button></a>
+                <br><br>
+                <table>
+                    <tr><th>Sr.</th>
+                        <th class="inv_head"><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=entry_order">Entry No.</a></th>
+                        <th class="inv_head"><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=code">Code</a></th>
+                        <th class="inv_head"><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=description">Description</a></th>
+                        <th class="inv_head">Size</th>
+                        <th class="inv_head">Packing</th>
+                        <th class="inv_head">Quantity</th>
+                        <th class="inv_head">Unit</th>
+                        <th class="inv_head">Unit Price</th>
+                        <th class="inv_head">Total</th>
+                        <th class="inv_head">Purchase Price</th>
+                        <th class="inv_head">Notes</th>
+                        <th class="inv_head">Vachet SP</th>
+                        <th class="inv_head">Current Stock</th>
+                        <th  class="inv_head" colspan="3" style="text-align: center;">Actions</th></tr>
+                    {% for entry in data %}
+                        {% if loop.index % 2 == 0 %}
+                            <tr>
+                                <td class="dark" id='{{entry["primarykey"]}}_serial'>{{loop.index}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_order'>{{entry["entry_order"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_code'><a href="/find?type=indi&query={{entry['code']}}" id='{{entry["primarykey"]}}_code_link'>{{entry["code"]}}</a></td>
+                                <td class="dark" id='{{entry["primarykey"]}}_description'>{{entry["description"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_size'>{{entry["size"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_packing'>{{entry["packing"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_quantity'>{{entry["quantity"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_unit'>{{entry["unit"]}}</td>
+                                <td class="dark right" id='{{entry["primarykey"]}}_price'>{{entry["price"]}}</td>
+                                <td class="dark right" id='{{entry["primarykey"]}}_total'>{{entry["total"]}}</td>
+                                <td class="dark right" id='{{entry["primarykey"]}}_purchase'>{{entry["purchase_price"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_notes'>{{entry["notes"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_sp'>{{entry["sp"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_stock'>{{entry["stock"]}}</td>
+                                <td class="dark" id='{{entry["primarykey"]}}_edit'><button class="button" id="btn-edit" onClick="edit_item({{entry['primarykey']}})">Edit</button></td>
+                                <td class="dark" id='{{entry["primarykey"]}}_delete'><button class="button" id="btn-delete" onClick="delete_item({{entry['primarykey']}})">Delete</button></td>
+                                <td class="dark" id='{{entry["primarykey"]}}_image'>{% if entry["image_path"] %}<button class="button" onClick="image_delete({{entry["primarykey"]}})">Delete Image</button>{% else %}<form id="{{entry["primarykey"]}}_imageform" action='/invoice?view=add_image&content_id={{entry["primarykey"]}}' method="POST"  enctype="multipart/form-data"><input type="file" name="image" id="{{entry["primarykey"]}}_image_upload" style="display: none;" accept="image/png, image/gif, image/jpeg" onchange="image_upload({{entry["primarykey"]}})" /><button type="button" class="button" onclick="document.getElementById('{{entry["primarykey"]}}_image_upload').click()">Upload Image</button></form>{% endif %}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td class="light" id='{{entry["primarykey"]}}_serial'>{{loop.index}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_order'>{{entry["entry_order"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_code'><a href="/find?type=indi&query={{entry['code']}}" id='{{entry["primarykey"]}}_code_link'>{{entry["code"]}}</a></td>
+                                <td class="light" id='{{entry["primarykey"]}}_description'>{{entry["description"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_size'>{{entry["size"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_packing'>{{entry["packing"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_quantity'>{{entry["quantity"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_unit'>{{entry["unit"]}}</td>
+                                <td class="light right" id='{{entry["primarykey"]}}_price'>{{entry["price"]}}</td>
+                                <td class="light right" id='{{entry["primarykey"]}}_total'>{{entry["total"]}}</td>
+                                <td class="light right" id='{{entry["primarykey"]}}_purchase'>{{entry["purchase_price"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_notes'>{{entry["notes"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_sp'>{{entry["sp"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_stock'>{{entry["stock"]}}</td>
+                                <td class="light" id='{{entry["primarykey"]}}_edit'><button class="button" id="btn-edit" onClick="edit_item({{entry['primarykey']}})">Edit</button></td>
+                                <td class="light" id='{{entry["primarykey"]}}_delete'><button class="button" id="btn-delete" onClick="delete_item({{entry['primarykey']}})">Delete</button></td>
+                                <td class="light" id='{{entry["primarykey"]}}_image'>{% if entry["image_path"] %}<button class="button" onClick="image_delete({{entry["primarykey"]}})">Delete Image</button>{% else %}<form id="{{entry["primarykey"]}}_imageform" action='/invoice?view=add_image&content_id={{entry["primarykey"]}}' method="POST"  enctype="multipart/form-data"><input type="file" name="image" id="{{entry["primarykey"]}}_image_upload" style="display: none;" accept="image/png, image/gif, image/jpeg" onchange="image_upload({{entry["primarykey"]}})" /><button type="button" class="button" onclick="document.getElementById('{{entry["primarykey"]}}_image_upload').click()">Upload Image</button></form>{% endif %}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr><td colspan="16"></td></tr>
+                    <tr><td colspan="9">Total</td><td id="cumulative_total" class="right">{{Gtotal}}</td></tr>
+                    <tr><td colspan="9">VAT @ 5%</td><td id="vat" class="right">{{VAT}}</td></tr>
+                    <tr><td colspan="9">Total with VAT</td><td id="grand_total" class="right">{{FinalTotal}}</td></tr>
+                </table>
+            {% else %}
+                <p>No items. To add items search the product then click on add to list.</p>
+            {% endif %}
+            <br>
+            <div id="add_product_div"><button class="button" id="button_add" onClick=add_new_item({{invoice_data['invoice_id']}})>Add Item</button></div>
+            <br>
+            <div id="DIV1"><button class="button" onclick="CalcToggle()">Calculator</button></div>
+            <br>
+            {% if profit_percent != 0 %}
+                {% if margin_percent != 0 %}
+                    Gross Amount: <strong>{{total_bill_amount}}</strong><br>
+                    Profit Amount: <strong>{{total_profit_amount}}</strong><br>
+                    Margin Percent: <strong>{{margin_percent}}%</strong><br>
+                    Profit Percent: <strong>{{profit_percent}}%</strong><br>
+                {% endif %}
+            {% endif %}
+            {% if invoice_data['narration']|length > 0 %}<br><p>Internal Narration : {{invoice_data['narration']}}</p>{% endif %}
+            {% if invoice_data['narration_external']|length > 0 %}External Narration : <pre>{{invoice_data['narration_external']}}</pre>{% endif %}
+            Created by: {{created_by}}
+            <br><br>
+        </main>
+        <footer class="footer">
+            <div class="container" style="text-align: center;">
+            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+        <script>
+            console.log(sessionStorage.getItem("scroll_value"))
+            let edit_item_in_progress = false;
+            function number_formater(numberString){
+                numberString = parseFloat(numberString);
+                numberString = (numberString + 0.0000000001).toFixed(2);
+                numberString = String(numberString)
+                crossed_decimal = false;
+                let output = ""
+                for (i=0; i<numberString.length; i++){
+                    output = output + numberString[i];
+                    if (numberString[i] == "."){
+                        crossed_decimal = true;
+                    }
+                    if (crossed_decimal == false){
+                        let remaining_number = numberString.slice(i+1).split('.')[0];
+                        if (Number.isNaN(parseFloat(remaining_number)) == false){
+                            if (remaining_number.length % 3 == 0){
+                                output = output + ","
+                            }
+                        }
+                    }
+                }
+                return output;
+            }
+            function update_numbers(){
+                {% for entry in data %}
+                    document.getElementById(String({{entry["primarykey"]}}) + "_total").innerHTML = number_formater(document.getElementById(String({{entry["primarykey"]}}) + "_total").innerHTML);
+                    document.getElementById(String({{entry["primarykey"]}}) + "_price").innerHTML = number_formater(document.getElementById(String({{entry["primarykey"]}}) + "_price").innerHTML);
+                {% endfor %}
+                document.getElementById("cumulative_total").innerHTML = number_formater(document.getElementById("cumulative_total").innerHTML);
+                document.getElementById("vat").innerHTML = number_formater(document.getElementById("vat").innerHTML);
+                document.getElementById("grand_total").innerHTML = number_formater(document.getElementById("grand_total").innerHTML);
+            }
+            function iframe_action(invoice_id){
+                if (sessionStorage.getItem("reloaded") == "true"){
+                    sessionStorage.setItem("scroll_required", "true");
+                    sessionStorage.setItem("scroll_value", window.pageYOffset);
+                    location.reload(true);
+                }
+            }
+            function add_new_item(invoice_id, type="table", query=""){
+                let current_find = document.getElementById("add_product_div");
+                current_find.innerHTML = '<button class="button" onClick=close_add(' + invoice_id + ')>Close</button><br><iframe width="100%" frameBorder="0" height="450px" src="/find?special=yes&query=' + query + '&type=' + type + '&invoice_id=' + invoice_id +'" name="addProductFrame" id="addProductFrame" onLoad="iframe_action(' + invoice_id + ')"></iframe>';
+            }
+            if (sessionStorage.getItem("reloaded")){
+                add_new_item(sessionStorage.getItem("invoice_id"), sessionStorage.getItem("type"), sessionStorage.getItem("query"))
+                sessionStorage.removeItem("reloaded");
+                sessionStorage.removeItem("query");
+                sessionStorage.removeItem("type");
+                sessionStorage.removeItem("invoice_id");
+            }
+            if (sessionStorage.getItem("scroll_required")){
+                window.scrollTo(0,parseInt(sessionStorage.getItem("scroll_value")))
+                sessionStorage.removeItem("scroll_required");
+                sessionStorage.removeItem("scroll_value");
+            }
+            function close_add(invoice_id){
+                location.reload(true);
+            }
+            function cancel(){
+                location.reload(true);
+            }
+            function delete_item_confirm(content_id){
+                if (window.pageYOffset > 0){
+                    sessionStorage.setItem("scroll_required", "true");
+                    sessionStorage.setItem("scroll_value", window.pageYOffset);
+                }
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = "/invoice?view=delete_invoice_content&content_id=" + content_id;
+                document.body.appendChild(form);
+                form.submit();
+            }
+            function row_highlighter(content_id){
+                let ids = ['_serial', '_order', '_code', '_description', '_size', '_packing', '_quantity', '_unit', '_price', '_total', '_purchase', '_stock', '_notes', '_edit', '_delete', '_image',]
+                for (let i=0; i<ids.length; i++){
+                    document.getElementById(content_id + ids[i]).style.color = "white";
+                    document.getElementById(content_id + ids[i]).style.backgroundColor = "red";
+                }
+                document.getElementById(content_id + "_code_link").style.color = "white";
+                
+            }
+            function delete_item(content_id){
+                if (edit_item_in_progress == false){
+                    edit_item_in_progress = true;
+                    row_highlighter(content_id)
+                    document.getElementById(content_id+"_delete").innerHTML = '<button class="button" onClick="delete_item_confirm(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
+                }
+            }
+            function image_upload(content_id){
+                if (window.pageYOffset > 0){
+                    sessionStorage.setItem("scroll_required", "true");
+                    sessionStorage.setItem("scroll_value", window.pageYOffset);
+                }
+                document.getElementById(content_id+"_imageform").submit()
+            }
+            function image_delete(content_id){
+                if (edit_item_in_progress == false){
+                    edit_item_in_progress = true;
+                    row_highlighter(content_id);
+                    document.getElementById(content_id+"_image").innerHTML = '<button class="button" onClick="delete_image_confirm(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
+                }
+            }
+            function delete_image_confirm(content_id){
+                if (window.pageYOffset > 0){
+                sessionStorage.setItem("scroll_required", "true");
+                sessionStorage.setItem("scroll_value", window.pageYOffset);
+            }
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = "/invoice?view=del_image&content_id=" + content_id;
+                document.body.appendChild(form);
+                form.submit();
+            }
+            function string_fixer(string_input){
+                output_string = ''
+                for (index=0; index< string_input.length; index ++){
+                    if (string_input[index] == '"'){
+                        output_string = output_string + '&quot;'
+                    } else {
+                        output_string = output_string + string_input[index]
+                    }
+                }
+                return output_string
+            }
+
+            function edit_item(content_id){      
+                
+                function edit_item_input_generation(id_table, type, name, id_input){
+                    if (type == 'number'){
+                        document.getElementById(id_table).innerHTML = '<input class="input" type="number" STEP="0.01" id="' + id_input + '" name="' + name + '" required value="' + string_fixer(document.getElementById(id_table).textContent).replace(",","") + '" style="width:'+ String((document.getElementById(id_table).textContent.length * 8) + 50) +'px" />'
+                    } else {
+                        document.getElementById(id_table).innerHTML = '<input class="input" type="text" id="' + id_input + '" name="' + name + '" required value="' + string_fixer(document.getElementById(id_table).textContent) + '"  style="width:'+ String((document.getElementById(id_table).textContent.length * 8) + 50) +'px" />'
+                    }
+                }          
+                if (edit_item_in_progress == false){
+                    edit_item_in_progress = true;
+                    row_highlighter(content_id);
+
+                    edit_item_input_generation(content_id+'_order', 'number', 'entry_order', content_id + 'entry_order');
+                    edit_item_input_generation(content_id+'_code', 'text', 'code', content_id + 'code');
+                    edit_item_input_generation(content_id+'_description', 'text', 'description', content_id + 'description');
+                    edit_item_input_generation(content_id+'_size', 'text', 'size', content_id + 'size');
+                    edit_item_input_generation(content_id+'_packing', 'text', 'packing', content_id + 'packing');
+                    edit_item_input_generation(content_id+'_quantity', 'number', 'quantity', content_id + 'quantity');
+                    edit_item_input_generation(content_id+'_unit', 'text', 'unit', content_id + 'unit');
+                    edit_item_input_generation(content_id+'_price', 'number', 'price', content_id + 'price');
+                    edit_item_input_generation(content_id+'_purchase', 'number', 'purchase_price', content_id + 'purchase_price');
+                    edit_item_input_generation(content_id+'_notes', 'text', 'notes', content_id + 'notes');
+                
+                    //document.getElementById(content_id+'_order').innerHTML = '<input class="input" type="number" STEP="0.01" id="' + content_id + 'entry_order" name="entry_order" required value="' + string_fixer(document.getElementById(content_id+"_order").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_order").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_code').innerHTML = '<input class="input" type="text" id="' + content_id + 'code" name="code" required value="' + string_fixer(document.getElementById(content_id+"_code").textContent) + '"  style="width:'+ String((document.getElementById(content_id+"_code").textContent.length * 8) + 20) +'px" />'
+                    //document.getElementById(content_id+'_description').innerHTML = '<input class="input" type="text" id="' + content_id + 'description" name="description" required value="' + string_fixer(document.getElementById(content_id+"_description").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_description").textContent.length * 8) + 30) +'px" />'
+                    //document.getElementById(content_id+'_size').innerHTML = '<input class="input" type="text" id="' + content_id + 'size" name="size" value="' + string_fixer(document.getElementById(content_id+"_size").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_size").textContent.length * 7) + 30) +'px" />'
+                    //document.getElementById(content_id+'_packing').innerHTML = '<input class="input" type="text" id="' + content_id + 'packing" name="packing" value="' + string_fixer(document.getElementById(content_id+"_packing").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_packing").textContent.length * 7) + 30) +'px" />'
+                    //document.getElementById(content_id+'_quantity').innerHTML = '<input class="input" type="number" step="0.01" id="' + content_id + 'quantity" name="quantity" required value="' + string_fixer(document.getElementById(content_id+"_quantity").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_quantity").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_unit').innerHTML = '<input class="input" type="text" id="' + content_id + 'unit" name="unit" required value="' + string_fixer(document.getElementById(content_id+"_unit").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_unit").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_price').innerHTML = '<input class="input" type="number" step="0.01" id="' + content_id + 'price" name="price" required value="' + string_fixer(document.getElementById(content_id+"_price").textContent.replace(",","")) + '" style="width:'+ String((document.getElementById(content_id+"_price").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_purchase').innerHTML = '<input class="input" type="number" id="' + content_id + 'purchase_price" name="purchase_price" step="0.0001" value="' + string_fixer(document.getElementById(content_id+"_purchase").textContent.replace(",","")) + '" style="width:'+ String((document.getElementById(content_id+"_purchase").textContent.length * 10) + 10) +'px" />'
+                    //document.getElementById(content_id+'_notes').innerHTML = '<input class="input" type="text" id="' + content_id + 'notes" name="notes" value="' + string_fixer(document.getElementById(content_id+"_notes").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_notes").textContent.length * 10) + 50) +'px" />'
+                    //document.getElementById(content_id+'_edit').innerHTML = '<button class="button" onClick="submitform(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
+
+                    document.getElementById(content_id+'_edit').innerHTML = '<button class="button" onClick="submitform(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
+                    // document.getElementById(content_id+'_edit').innerHTML = '<img src="{{ url_for("static",filename="yes.png") }}" onClick="submitform(' + content_id +')">&nbsp;&nbsp;<img src="{{ url_for("static",filename="no.png") }}" onClick="cancel()"">'
+                }
+                document.addEventListener('keyup', (e) => {
+                    if (e.code === "NumpadEnter" || e.code === "Enter"){
+                        submitform(content_id)
+                    }
+                });
+            }
+            function submitform(content_id){
+                if (window.pageYOffset > 0){
+                    sessionStorage.setItem("scroll_required", "true");
+                    sessionStorage.setItem("scroll_value", window.pageYOffset);
+                }
+                let form = document.createElement('form');
+                form.method = 'post';
+                form.action = "/invoice?view=edit_invoice_content&content_id=" + content_id;
+                form.style.visibility = 'hidden';
+                
+                let entry_order = document.createElement('input');
+                entry_order.type = 'number';
+                entry_order.name = "entry_order";
+                entry_order.value = document.getElementById(content_id + "entry_order").value
+                form.appendChild(entry_order);
+
+                let code = document.createElement('input');
+                code.type = 'text';
+                code.name = "code";
+                code.value = document.getElementById(content_id + "code").value
+                form.appendChild(code);
+
+                let description = document.createElement('input');
+                description.type = 'text';
+                description.name = "description";
+                description.value = document.getElementById(content_id + "description").value
+                form.appendChild(description);
+
+                let size = document.createElement('input');
+                size.type = 'text';
+                size.name = "size";
+                size.value = document.getElementById(content_id + "size").value
+                form.appendChild(size);
+
+                let packing = document.createElement('input');
+                packing.type = 'text';
+                packing.name = "packing";
+                packing.value = document.getElementById(content_id + "packing").value
+                form.appendChild(packing);
+
+                let quantity = document.createElement('input');
+                quantity.type = 'number';
+                quantity.name = "quantity";
+                quantity.value = document.getElementById(content_id + "quantity").value
+                form.appendChild(quantity);
+
+                let unit = document.createElement('input');
+                unit.type = 'text';
+                unit.name = "unit";
+                unit.value = document.getElementById(content_id + "unit").value
+                form.appendChild(unit);
+
+                let price = document.createElement('input');
+                price.type = 'number';
+                price.name = "price";
+                console.log(document.getElementById(content_id + "price").value);
+                if (document.getElementById(content_id + "price").value > 0){
+                 price.value = document.getElementById(content_id + "price").value
+                } else (
+                    price.value = 0
+                )
+                form.appendChild(price);
+
+                let purchase_price = document.createElement('input');
+                purchase_price.type = 'number';
+                purchase_price.name = "purchase_price";
+                purchase_price.value = document.getElementById(content_id + "purchase_price").value
+                form.appendChild(purchase_price);
+
+                let notes = document.createElement('input');
+                notes.type = 'text';
+                notes.name = "notes";
+                notes.value = document.getElementById(content_id + "notes").value
+                form.appendChild(notes);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+            update_numbers();
+        </script>
+    </body>
+</html>

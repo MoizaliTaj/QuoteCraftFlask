@@ -18,7 +18,7 @@
     <body>
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="/">Company Name</a>
+                <a class="navbar-brand" href="/">Quote Craft</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -100,8 +100,20 @@
             {% elif type=='number_deleted' %}
                 <p>Number Deleted</p>
                 <p>Redirecting to phone book.</p>
-                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />        {% elif type=='404' %}
-                <p>Not Found.</p>
+                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
+            {% elif type=='duplicate_salesman' %}
+                <p>Duplicate Salesman</p>
+                <meta http-equiv="Refresh" content="3; url='/invoice?view=customer_list'" />
+            {% elif type=='salesman_added' %}
+                <p>Salesman Added</p>
+                <p>Redirecting to update customer page</p>
+                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
+            {% elif type=='salesman_added_1' %}
+                <p>Salesman Added</p>
+                <p>Redirecting to Proforma Invoice</p>
+                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
+            {% elif type=='404' %}
+                <p>Not Found</p>
             {% endif %}
             <br><br>
         </main>

@@ -33,17 +33,6 @@ class Master(db.Model):
     tally_rate = db.Column(db.String)
 
 
-class Store(db.Model):
-    __tablename__ = 'store'
-    Store_Name = db.Column(db.String, primary_key=True)
-    Display_Name = db.Column(db.String, nullable=False)
-    Landline = db.Column(db.String, nullable=False)
-    Mobile = db.Column(db.String, nullable=False)
-    TRN = db.Column(db.String, nullable=False)
-    fax = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, nullable=False)
-
-
 class Image(db.Model):
     __tablename__ = 'image'
     code = db.Column(db.String, primary_key=True, )
@@ -67,8 +56,11 @@ class CustomerDetails(db.Model):
     user_name = db.Column(db.String, nullable=False)
     user_group = db.Column(db.String, nullable=False)
     contact_number = db.Column(db.String)
+    total_amount = db.Column(db.Integer)
+    salesman_id = db.Column(db.Integer, ForeignKey("salesman_details.salesman_id"))
     salesman_name = db.Column(db.String)
     children = relationship("InvoiceIndex")
+
 
 
 class InvoiceContent(db.Model):
@@ -86,6 +78,7 @@ class InvoiceContent(db.Model):
     notes = db.Column(db.String)
     unit = db.Column(db.String)
     total = db.Column(db.String)
+    sp = db.Column(db.String)
     stock = db.Column(db.String)
     purchase_price = db.Column(db.Integer)
     image_path = db.Column(db.String)
@@ -103,6 +96,7 @@ class InvoiceIndex(db.Model):
     attention_to = db.Column(db.String)
     narration = db.Column(db.String)
     narration_external = db.Column(db.String)
+    invoice_amount = db.Column(db.Integer)
     children = relationship("InvoiceContent")
 
 
@@ -124,7 +118,7 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     password_status = db.Column(db.String, nullable=False)
     type = db.Column(db.String, nullable=False)
-    store = db.Column(db.String, nullable=False)
+
 
 
 class PhoneIndex(db.Model):
@@ -142,3 +136,22 @@ class PhoneNumber(db.Model):
     phonebook_id = db.Column(db.Integer, ForeignKey("phone_index.phonebook_id"))
     name = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, nullable=False)
+
+
+class GameScore(db.Model):
+    __bind_key__ = 'performa'
+    __tablename__ = 'game_score'
+    index = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_name = db.Column(db.String, nullable=False)
+    game = db.Column(db.String, nullable=False)
+    score = db.Column(db.String, nullable=False)
+
+
+class SalesmanDetails(db.Model):
+    __bind_key__ = 'performa'
+    __tablename__ = 'salesman_details'
+    salesman_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    salesman_name = db.Column(db.String, nullable=False)
+    mobile_number = db.Column(db.String, nullable=False)
+    email_id = db.Column(db.String, nullable=False)
+    children = relationship("CustomerDetails")

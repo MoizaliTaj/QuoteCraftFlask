@@ -18,7 +18,7 @@
     <body>
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="/">Company Name</a>
+                <a class="navbar-brand" href="/">Quote Craft</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -48,7 +48,6 @@
                     <table style="border:0px">
                         <tr style="border:0px"><td style="border:0px">Username</td><td style="border:0px"><input type="text" id="user" name="user" required /></td></tr>
                         <tr style="border:0px"><td style="border:0px">User Group</td><td style="border:0px"><input type="text" id="usergroup" name="usergroup" required /></td></tr>
-                        <tr style="border:0px"><td style="border:0px">Store</td><td style="border:0px"><select name="store" id="store" required><option value="" selected disabled hidden >Choose here</option>{% for store in storedetails %}<option value="{{store[0]}}">{{store[0]}}</option>{% endfor %}</select><br></td></tr>
                         <tr style="border:0px"><td style="border:0px">Type</td><td style="border:0px"><select name="type" id="type" required><option value="User">User</option><option value="Admin">Administrator</option></select></td></tr>
                         <tr style="border:0px"><td style="border:0px"></td><td style="border:0px"><input type="submit" value="Add User" class="button"></td></tr>
                     </table>
@@ -85,7 +84,6 @@
                     <table style="border:0px">
                         <tr style="border:0px"><td style="border:0px">Username</td><td style="border:0px"><input type="text" id="user" name="user" value='{{userdata["user_name"]}}' readonly /></td></tr>
                         <tr style="border:0px"><td style="border:0px">UserGroup</td><td style="border:0px"><input type="text" id="usergroup" name="usergroup" value='{{userdata["user_group"]}}' required /></td></tr>
-                        <tr style="border:0px"><td style="border:0px">Store</td><td style="border:0px"><select name="store" id="store" required><option value='{{userdata["store"]}}'>{{userdata["store"]}}</option>{% for store in storedetails %}{% if store[0] != userdata["store"] %}<option value="{{store[0]}}">{{store[0]}}</option>{% endif %}{% endfor %}</select><br></td></tr>
                         <tr style="border:0px"><td style="border:0px">Type</td><td style="border:0px"><select name="type" id="type" required><option value='{{userdata["type"]}}'>{{userdata["type"]}}</option>{% if userdata["type"] == 'User' %}<option value="Admin">Administrator</option>{% else %}<option value="User">User</option>{% endif %}</select></td></tr>
                         <tr style="border:0px"><td style="border:0px"></td><td style="border:0px"><input type="submit" class="button" value = "Update"></td></tr>
                     </table>

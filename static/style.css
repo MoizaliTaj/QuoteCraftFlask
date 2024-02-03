@@ -6,10 +6,17 @@ table, tr, td,th {
 .light {
     background-color: white;
     color: black;
+    font-size: small;
 }
 .dark {
     background-color: #f3f1f1;
     color: black;
+    font-size: small;
+}
+.inv_head {
+    background-color: #f3f1f1;
+    color: black;
+    font-size: medium;
 }
 .button {
     background-color: #00469b;
@@ -88,3 +95,10 @@ table, tr, td,th {
   width: 400px;
 }
 
+.right {
+  text-align:right;
+}
+
+.history {
+    font-size: small;
+}

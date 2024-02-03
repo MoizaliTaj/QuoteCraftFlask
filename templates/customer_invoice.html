@@ -13,13 +13,92 @@
         <!-- Custom styles for this template -->
         <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
         <script src="{{ url_for('static',filename='home_search.js') }}"></script>
-        <script>function addManual(){document.getElementById("addManual").innerHTML = '<input type="text" id="salesman_name" name="salesman_name" value="" />';}</script>
         <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+        <script>
+            function mobile_number_formater(mobile_number){
+                mobile_number = mobile_number.replace(/ /g,'').slice(-9)
+                if (mobile_number.length == 9){
+                    if (mobile_number[0] == 5){
+                        mobile_number = "0" + mobile_number.slice(0,2) + " " + mobile_number.slice(2,5) + " " + mobile_number.slice(5,9);
+                        return mobile_number;
+                    }
+                }
+                return "problem";
+            }
+            function salesman_add_edit(link){
+                let checks_passed = true;
+
+                let salesman_name_value = document.getElementById("salesman_name").value;
+                let mobile_no_value = document.getElementById("mobile_no").value;
+                let email_value = document.getElementById("email").value;
+
+                if (salesman_name_value.length == 0){
+                    checks_passed = false;
+                    document.getElementById("error").textContent = "Salesman name can not be blank. ";
+                }
+
+                if (mobile_number_formater(mobile_no_value) != "problem"){mobile_no_value = mobile_number_formater(mobile_no_value);} 
+                else {
+                    checks_passed = false;
+                    document.getElementById("error").textContent = document.getElementById("error").textContent + "Invalid Mobile Number. ";
+                }
+
+                if (email_value.length == 0){
+                    checks_passed = false;
+                    document.getElementById("error").textContent = document.getElementById("error").textContent + "Email can not be blank. ";
+                }
+
+
+                console.log(salesman_name_value);
+                console.log(mobile_no_value);
+                console.log(email_value);
+
+                if (checks_passed){
+                    let form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = link;
+                    form.style.visibility = 'hidden';
+    
+                    let customer_id = document.createElement('input');
+                    customer_id.type = 'text';
+                    customer_id.name = "customer_id";
+                    customer_id.value = document.getElementById("customer_id").value
+                    form.appendChild(customer_id);
+    
+                    let salesman_id = document.createElement('input');
+                    salesman_id.type = 'text';
+                    salesman_id.name = "salesman_id";
+                    salesman_id.value = document.getElementById("salesman_id").value
+                    form.appendChild(salesman_id);
+    
+                    let salesman_name = document.createElement('input');
+                    salesman_name.type = 'text';
+                    salesman_name.name = "salesman_name";
+                    salesman_name.value = salesman_name_value;
+                    form.appendChild(salesman_name);
+    
+                    let mobile_no = document.createElement('input');
+                    mobile_no.type = 'text';
+                    mobile_no.name = "mobile_no";
+                    mobile_no.value = mobile_no_value;
+                    form.appendChild(mobile_no);
+    
+                    let email = document.createElement('input');
+                    email.type = 'text';
+                    email.name = "email";
+                    email.value = email_value;
+                    form.appendChild(email);
+    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        </script>
     </head>
     <body>
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="/">Company Name</a>
+                <a class="navbar-brand" href="/">Quote Craft</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -41,31 +120,35 @@
                         <tr><td>Customer Name</td><td><input type="text" id="cust_name" name="cust_name" required/></td></tr>
                         <tr><td>Contact Number</td><td><input type="text" id="contact_no" name="contact_no" /></td></tr>
                         <tr><td>Salesman Name</td><td id="addManual">
-                            <select name="salesman_name" id="salesman_name" required>
+                            <select name="salesman_id" id="salesman_id" required>
                             <option value="" selected disabled hidden >Choose here</option>
                             {% for salesman in salesman_list %}
-                                <option value="{{salesman[0]}}">{{salesman[0]}}</option>
+                                <option value="{{salesman['salesman_id']}}">{{salesman['salesman_name']}}</option>
                             {% endfor %}
                             </select><br>
-                            <a onClick="addManual()">Add Manually</a>
+                            <br>
+                            <a href="/invoice?view=add_salesman">Add New Salesman</a>
                         </td></tr>
                     </table>
                     <br>
                     <input class="button" type="submit" value = "Add Customer" >
                 </form>
             {% elif type=='update_customer' %}
-                <form  action="/invoice?view=update_customer&customer_id={{customerID}}" method="POST">
+                <form  action="/invoice?view=update_customer&customer_id={{customer_details['primarykey']}}" method="POST">
+
                     <table>
-                        <tr><td>Customer Name</td><td><input type="text" id="cust_name" name="cust_name" value="{{customername}}" required/></td></tr>
-                        <tr><td>Contact Number</td><td><input type="text" id="contact_no" name="contact_no" value="{{contactnumber}}" /></td></tr>
+                        <tr><td>Customer Name</td><td><input type="text" id="cust_name" name="cust_name" value="{{customer_details['customer_name']}}" required/></td></tr>
+                        <tr><td>Contact Number</td><td><input type="text" id="contact_no" name="contact_no" value="{{customer_details['contact_number']}}" /></td></tr>
                         <tr><td>Salesman Name</td><td id="addManual">
-                            <select name="salesman_name" id="salesman_name" required>
-                            <option value="{{salesman_name}}">{{salesman_name}}</option>
+                            <select name="salesman_id" id="salesman_id" required>
+                            <option value="{{current_salesman_detail['salesman_id']}}">{{current_salesman_detail['salesman_name']}}</option>
                             {% for salesman in salesman_list %}
-                                <option value="{{salesman[0]}}">{{salesman[0]}}</option>
+                                <option value="{{salesman['salesman_id']}}">{{salesman['salesman_name']}}</option>
                             {% endfor %}
-                            </select><br>
-                            <a onClick="addManual()">Add Manually</a>
+                            </select><br><br>
+                            <a href="/invoice?view=edit_salesman&salesman_id={{current_salesman_detail['salesman_id']}}&customer_id={{customer_details['primarykey']}}">Edit Current Salesman Details</a>
+                            <br><br>
+                            <a href="/invoice?view=add_salesman&customer_id={{customerID}}">Add New Salesman</a>
                         </td></tr>
                     </table>
                     <br>
@@ -104,18 +187,24 @@
                 <a href="/invoice?view=invoice_add&customer_id={{cust_id}}"><button class="button">Add New Invoice</button></a>
                 <br><br>
                 <table>
-                    <tr><th>Sr.</th><th>Invoice ID</th><th>Date</th><th>Payment Terms</th><th></th><th colspan="2">Actions</th></tr>
+                    <tr><th>Sr.</th><th>Invoice ID</th><th>Date</th><th>Payment Terms</th><th>Amount</th><th>Created By</th><th colspan="2">Actions</th></tr>
                     {% for entry in data %}
-                        <tr><td>{{loop.index}}</td><td>{{entry['invoice_id']}}</td><td>{{entry['date']}}</td><td>{{entry['payment_terms']}}</td><td><a href="/invoice?view=invoice_manager&invoice_id={{entry['invoice_id']}}">View</a></td><td><a href="/invoice?view=invoice_delete&invoice_id={{entry['invoice_id']}}">Delete</a></td></tr>
+                    <tr><td>{{loop.index}}</td><td>{{entry['invoice_id']}}</td><td>{{entry['date']}}</td><td>{{entry['payment_terms']}}</td><td style="text-align: right;">{{entry['invoice_amount']}}</td><td style="text-align: right;">{{entry['user_name']}}</td><td><a href="/invoice?view=invoice_manager&invoice_id={{entry['invoice_id']}}">View</a></td><td><a href="/invoice?view=invoice_delete&invoice_id={{entry['invoice_id']}}">Delete</a></td></tr>
                     {% endfor %}
+                    <tr><td colspan="4" style="text-align:center;"><strong>Total Amount</strong></td><td>{{total_amount}}</td></tr></tr>
                 </table>
             {% elif type=='complete_invoice_list' %}
                 <a href="/invoice?view=customer_list" style="text-decoration:none; font-size:small;">&#x2190 Back to customer list</a>
                 <br><br>
                 <table>
-                    <tr><th>Sr.</th><th><a href="/invoice?view=all_invoice_list&sort=none">Invoice #</a></th><th>Date</th><th><a href="/invoice?view=all_invoice_list&sort=customer_name">Customer Name</a></th><th><a href="/invoice?view=all_invoice_list&sort=salesman_name">Salesman Name</a></th></tr>
+                    <tr><th>Sr.</th><th><a href="/invoice?view=all_invoice_list&sort_by={{sort_by}}&sort=invoice_id">Invoice #</a></th><th><a href="/invoice?view=all_invoice_list&sort_by={{sort_by}}&sort=date">Date</a></th><th><a href="/invoice?view=all_invoice_list&sort_by={{sort_by}}&sort=customer_name">Customer Name</a></th><th><a href="/invoice?view=all_invoice_list&sort_by={{sort_by}}&sort=salesman_name">Salesman Name</a></th><th>Amount</th></tr>
                     {% for entry in data %}
-                        <tr><td>{{loop.index}}</td><td><a href="/invoice?view=invoice_manager&invoice_id={{entry[0]}}">{{entry[0]}}</a></td><td>{{entry[3]}}</td><td>{{entry[1]}}</td><td>{{entry[2]}}</td></tr>
+                        {% if loop.index % 2 == 0 %}
+                            <tr><td class="dark">{{loop.index}}</td><td class="dark"><a href="/invoice?view=invoice_manager&invoice_id={{entry[0]}}">{{entry[0]}}</a></td><td class="dark">{{entry[3]}}</td><td class="dark">{{entry[1]}}</td><td class="dark">{{salesman_list[entry[2]-1]['salesman_name']}}</td><td class="dark right">{{entry[4]}}</td></tr>
+                        {% else %}
+                            <tr><td class="light">{{loop.index}}</td><td class="light"><a href="/invoice?view=invoice_manager&invoice_id={{entry[0]}}">{{entry[0]}}</a></td><td class="light">{{entry[3]}}</td><td class="light">{{entry[1]}}</td><td class="light">{{salesman_list[entry[2]-1]['salesman_name']}}</td><td class="light right">{{entry[4]}}</td></tr>
+                        {% endif %}
+
                     {% endfor %}
                 </table>
             {% elif type=='invoice_home' %}
@@ -124,11 +213,35 @@
                 To add a performa for a new customer, first add new customer and then add invoice to that customer.
                 <br><br>
                 <table>
-                    <tr><th>Sr.</th><th><a href="/invoice?view=customer_list&sort=customer_name">Customer Name</a></th><th><a href="/invoice?view=customer_list&sort=salesman_name">Salesman Name</a></th></tr>
+                    <tr><th>Sr.</th><th><a href="/invoice?view=customer_list&sort_by={{sort_by}}&sort=customer_name">Customer Name</a></th><th><a href="/invoice?view=customer_list&sort_by={{sort_by}}&sort=salesman_name">Salesman Name</a></th></tr>
                     {% for entry in data %}
-                    <tr><td>{{loop.index}}</td><td><a href="/invoice?view=invoice_list&customer_id={{entry[1]}}">{{entry[0]}}</a></td><td>{{entry[2]}}</td></tr>
+                    <tr><td>{{loop.index}}</td><td><a href="/invoice?view=invoice_list&customer_id={{entry[1]}}">{{entry[0]}}</a></td><td>{{salesman_list[entry[2] - 1]['salesman_name']}}</td></tr>
                     {% endfor %}
                 </table>
+            {% elif type=='add_salesman' %}
+                <input type="text" id="customer_id" name="customer_id" value="" hidden />
+                <input type="text" id="salesman_id" name="salesman_id" value="" hidden />
+                <table>
+                    <tr><td>Salesman Name</td><td><input type="text" id="salesman_name" name="salesman_name" required /></td></tr>
+                    <tr><td>Mobile Number</td><td><input type="text" id="mobile_no" name="mobile_no" required /></td></tr>
+                    <tr><td>Email ID</td><td><input type="text" id="email" name="email" required /></td></tr>
+                </table>
+                <div id="error"></div>
+                <br>
+                <button class="button" type="button" onClick=salesman_add_edit("/invoice?view=add_salesman")>Add Salesman</button>
+            {% elif type=='edit_salesman' %}
+                <input type="text" id="customer_id" name="customer_id" value="{{customer_id}}" hidden />
+                <input type="text" id="salesman_id" name="salesman_id" value="{{salesman_detail['salesman_id']}}" hidden />
+                <table>
+                    <tr><td>Salesman Name</td><td><input type="text" id="salesman_name" name="salesman_name" value="{{salesman_detail['salesman_name']}}" required/></td></tr>
+                    <tr><td>Mobile Number</td><td><input type="text" id="mobile_no" name="mobile_no" value="{{salesman_detail['mobile_number']}}" required /></td></tr>
+                    <tr><td>Email ID</td><td><input type="text" id="email" name="email" value="{{salesman_detail['email_id']}}" required /></td></tr>
+                </table>
+                <div id="error"></div>
+                <br>
+                <button class="button" type="button" onClick=salesman_add_edit("/invoice?view=edit_salesman")>Update Salesman</button>
+
+
             {% endif %}
             <br><br>
         </main>

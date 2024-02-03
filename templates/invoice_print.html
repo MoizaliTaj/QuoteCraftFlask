@@ -5,17 +5,53 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{title}}</title>
         <link rel="stylesheet" href="{{ url_for('static',filename='listprint.css') }}" >
+        <script>
+            function number_formater(numberString){
+                numberString = parseFloat(numberString);
+                numberString = (numberString + 0.0000000001).toFixed(2);
+                numberString = String(numberString)
+                crossed_decimal = false;
+                let output = ""
+                for (i=0; i<numberString.length; i++){
+                    output = output + numberString[i];
+                    if (numberString[i] == "."){
+                        crossed_decimal = true;
+                    }
+                    if (crossed_decimal == false){
+                        let remaining_number = numberString.slice(i+1).split('.')[0];
+                        if (Number.isNaN(parseFloat(remaining_number)) == false){
+                            if (remaining_number.length % 3 == 0){
+                                output = output + ","
+                            }
+                        }
+                    }
+                }
+                return output;
+            }
+            function update_numbers(size){
+                for (let i=1; i<=size; i++){
+                    document.getElementById("total_"+String(i)).innerHTML = number_formater(document.getElementById("total_"+String(i)).innerHTML);
+                    document.getElementById("rate_"+String(i)).innerHTML = number_formater(document.getElementById("rate_"+String(i)).innerHTML);
+                }
+                document.getElementById("cumulative_total").innerHTML = number_formater(document.getElementById("cumulative_total").innerHTML);
+                document.getElementById("vat").innerHTML = number_formater(document.getElementById("vat").innerHTML);
+                document.getElementById("grand_total").innerHTML = number_formater(document.getElementById("grand_total").innerHTML);
+            }
+            function update_numbers_(size){
+                for (let i=1; i<=size; i++){
+                    document.getElementById("rate_"+String(i)).innerHTML = number_formater(document.getElementById("rate_"+String(i)).innerHTML);
+                }
+            }
+        </script>
     </head>
     <body>
         {% if data|length > 0 %}
             <img class="header" src="{{ url_for('static',filename='header.png') }}" >
             <div class="header_text">
-                {% if storedata['Landline']|length > 0 %}<a href="tel: {{storedata['Landline']}}" target="_blank" style="text-decoration:none;color:black;">&#9742; {{storedata['Landline']}}</a> | {% endif %}
-                {% if storedata['Mobile']|length > 0 %}<a href="tel: {{storedata['Mobile']}}" target="_blank" style="text-decoration:none;color:black;">&#128241; {{storedata['Mobile']}}</a> | {% endif %}
-                {% if storedata['fax']|length > 0 %}Fax:- {{storedata['fax']}} | {% endif %}
-                {% if storedata['email']|length > 0 %}<a href="mailto: {{storedata['email']}}" target="_blank" style="text-decoration:none;color:black;">&#9993; {{storedata['email']}}</a> | {% endif %}
-                <STRONG>{{storedata['Display_Name']}}</STRONG>
-                {{storedata['TRN']}}
+                {% if salesman_data['mobile_number']|length > 0 %}<a href="tel: {{salesman_data['mobile_number']}}" target="_blank" style="text-decoration:none;color:black;font-size:medium;">&#128241; {{salesman_data['mobile_number']}}</a> | {% endif %}
+                <a href="tel: 04 111 1111" target="_blank" style="text-decoration:none;color:black;font-size:medium;">&#9742; 04 111 1111</a> |
+                {% if salesman_data['email_id']|length > 0 %}<a href="mailto: {{salesman_data['email_id']}}" target="_blank" style="text-decoration:none;color:black;font-size:medium;">&#9993; {{salesman_data['email_id']}}</a> | {% endif %}
+                <a style="text-decoration:none;color:black;font-size:medium;">TRN 100000000000000</a>
                 <br>
                 Proforma Invoice / Quotation
             </div>
@@ -35,29 +71,29 @@
                     <tr><th class="border fontcust center head">Sr.</th><th class="border fontcust center head">Code</th><th class="border fontcust center head">Description</th><th class="border fontcust center head">Quantity</th><th class="border fontcust center head">Unit</th><th class="border fontcust center head">Unit Price</th><th class="border fontcust center head">Total</th></tr>
                     {% for entry in data %}
                         {% if loop.index % 2 == 0 %}
-                            <tr><td class="border fontcust center light" >{{loop.index}}</td><td class="border fontcust center light">{{entry[2]["code"]}}</td><td class="border fontcust left light">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center light">{{entry[2]["quantity"]}}</td><td class="border fontcust center light">{{entry[2]["unit"]}}</td><td class="border fontcust center light">{{entry[2]["price"]}}</td><td class="border fontcust center light">{{entry[2]["total"]}}</td></tr>
+                            <tr><td class="border fontcust center light" >{{loop.index}}</td><td class="border fontcust center light">{{entry[2]["code"]}}</td><td class="border fontcust left light">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center light">{{entry[2]["quantity"]}}</td><td class="border fontcust center light">{{entry[2]["unit"]}}</td><td class="border fontcust right light" id="rate_{{loop.index}}" >{{entry[2]["price"]}}</td><td class="border fontcust right light" id="total_{{loop.index}}" >{{entry[2]["total"]}}</td></tr>
                         {% else %}
-                            <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["quantity"]}}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust center dark">{{entry[2]["price"]}}</td><td class="border fontcust center dark">{{entry[2]["total"]}}</td></tr>
+                            <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["quantity"]}}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust right dark" id="rate_{{loop.index}}" >{{entry[2]["price"]}}</td><td class="border fontcust right dark" id="total_{{loop.index}}" >{{entry[2]["total"]}}</td></tr>
                         {% endif %}
                     {% endfor %}
-                    <tr><td colspan="4" class="left fontcust" rowspan="2" style="font-family: Calibri, sans-serif;font-size:medium;">Amount in words: <em>{{amount_in_words}}</em></td><td colspan="2" class="border center fontcust head">Total</td><td class="border center fontcust" style="padding:2px;">{{Gtotal}}</td></tr>
-                        <tr><td colspan="2" class="border center fontcust head">VAT @ 5%</td><td class="border center fontcust" style="padding:2px;">{{VAT}}</td></tr>
-                        <tr><td colspan="4"></td><td colspan="2" class="border center fontcust head">Total with VAT</td><td class="border center fontcust" style="padding:2px;">{{FinalTotal}}</td></tr>
+                    <tr><td colspan="4" class="left fontcust" rowspan="2" style="font-family: Calibri, sans-serif;font-size:medium;">Amount in words: <em>{{amount_in_words}}</em></td><td colspan="2" class="border center fontcust head">Total</td><td class="border right fontcust" style="padding:2px;" id="cumulative_total" >{{Gtotal}}</td></tr>
+                        <tr><td colspan="2" class="border center fontcust head">VAT @ 5%</td><td class="border right fontcust" style="padding:2px;" id="vat">{{VAT}}</td></tr>
+                        <tr><td colspan="4"></td><td colspan="2" class="border center fontcust head">Total with VAT</td><td class="border right fontcust" style="padding:2px;" id="grand_total">{{FinalTotal}}</td></tr>
                 </table>
-                <div class="notice" style="position: relative; top: -10px;">| Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
+                <div class="notice" style="position: relative; top: -10px;">Salesman Name: {{salesman_data['salesman_name']}}<br> | Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
                 {% if data[0][1]["narration_external"]|length > 0 %}<pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -15px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
             {% elif type=='invoice_exception' %}
                 <table class="tabledes">
                     <tr><th class="border fontcust center head">Sr.</th><th class="border fontcust center head">Code</th><th class="border fontcust center head">Description</th><th class="border fontcust center head">Unit</th><th class="border fontcust center head">Unit Price</th></tr>
                     {% for entry in data %}
                         {% if loop.index % 2 == 0 %}
-                            <tr><td class="border fontcust center light" >{{loop.index}}</td><td class="border fontcust center light">{{entry[2]["code"]}}</td><td class="border fontcust left light">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center light">{{entry[2]["unit"]}}</td><td class="border fontcust center light">{{entry[2]["price"]}}</td></tr>
+                            <tr><td class="border fontcust center light" >{{loop.index}}</td><td class="border fontcust center light">{{entry[2]["code"]}}</td><td class="border fontcust left light">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center light">{{entry[2]["unit"]}}</td><td class="border fontcust right light" id="rate_{{loop.index}}" >{{entry[2]["price"]}}</td></tr>
                         {% else %}
-                            <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust center dark">{{entry[2]["price"]}}</td></tr>
+                            <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust right dark" id="rate_{{loop.index}}" >{{entry[2]["price"]}}</td></tr>
                         {% endif %}
                     {% endfor %}
                 </table>
-                <div class="notice">| Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
+                <div class="notice">Salesman Name: {{salesman_data['salesman_name']}}<br> | Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
                 {% if data[0][1]["narration_external"]|length > 0 %}<pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -10px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
             {% endif %}
 <!--            <img src="{{ url_for('static',filename='stamp.png') }}" style="position: relative; top: -80px;left: 450px;">-->
@@ -66,4 +102,9 @@
         {% endif %}
     </body>
     <script>window.print()</script>
+    {% if type=='invoice_normal' %}
+        <script>update_numbers({{data|length}})</script>
+    {% elif type=='invoice_exception' %}
+        <script>update_numbers_({{data|length}})</script>
+    {% endif %}
 </html>

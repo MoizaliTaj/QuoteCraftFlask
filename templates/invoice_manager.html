@@ -16,11 +16,24 @@
         <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
         <script src="{{ url_for('static',filename='calc.js') }}"></script>
         <script src="{{ url_for('static',filename='shortcut.js') }}"></script>
+        <style>
+        .table-container {
+            max-height: 570px; /* Adjust the max-height as needed */
+            overflow-y: auto;
+        }
+
+        .fixed-header th {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+        }
+    </style>
+        </style>
      </head>
     <body>
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="/">Company Name</a>
+                <a class="navbar-brand" href="/">Quote Craft</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -45,70 +58,81 @@
                 <a href="/invoice?view=invoice_print&invoice_id={{invoice_data['invoice_id']}}&sort_by={{sorter}}&print_type=normal" target="_blank"><button class="button">Print</button></a>&nbsp;&nbsp;&nbsp;
                 <a href="/invoice?view=invoice_print&invoice_id={{invoice_data['invoice_id']}}&sort_by={{sorter}}&print_type=without_quantity" target="_blank"><button class="button">Print (Without Quantity)</button></a>
                 <br><br>
-                <table>
-                    <tr><th>Sr.</th>
-                        <th><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=entry_order">Entry No.</a></th>
-                        <th><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=code">Code</a></th>
-                        <th><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=description">Description</a></th>
-                        <th>Size</th><th>Packing</th><th>Quantity</th>
-                        <th>Unit</th><th>Unit Price</th><th>Total</th>
-                        <th>Purchase Price</th>
-                        <th>Notes</th>
-                        <th>Current Stock</th>
-                        <th colspan="3">Actions</th></tr>
-                    {% for entry in data %}
-                        {% if loop.index % 2 == 0 %}
-                            <tr>
-                                <td class="dark">{{loop.index}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_order'>{{entry["entry_order"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_code'><a href="/find?type=indi&query={{entry['code']}}">{{entry["code"]}}</a></td>
-                                <td class="dark" id='{{entry["primarykey"]}}_description'>{{entry["description"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_size'>{{entry["size"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_packing'>{{entry["packing"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_quantity'>{{entry["quantity"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_unit'>{{entry["unit"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_price'>{{entry["price"]}}</td>
-                                <td class="dark" >{{entry["total"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_purchase'>{{entry["purchase_price"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_notes'>{{entry["notes"]}}</td>
-                                <td class="dark" >{{entry["stock"]}}</td>
-                                <td class="dark" id='{{entry["primarykey"]}}_edit'><button class="button" id="btn-edit" onClick="edit_item({{entry['primarykey']}})">Edit</button></td>
-                                <td class="dark" id='{{entry["primarykey"]}}_delete'><button class="button" id="btn-delete" onClick="delete_item({{entry['primarykey']}})">Delete</button></td>
-                                <td class="dark" id='{{entry["primarykey"]}}_image'>{% if entry["image_path"] %}<label style="color:red;" onClick="image_delete({{entry["primarykey"]}})">Delete Image</label>{% else %}<form id="{{entry["primarykey"]}}_imageform" action='/invoice?view=add_image&content_id={{entry["primarykey"]}}' method="POST"  enctype="multipart/form-data"><input type="file" name="image" id="{{entry["primarykey"]}}_image_upload"  style="display:none;" accept="image/png, image/gif, image/jpeg" onchange="image_upload({{entry["primarykey"]}})" /><label style="color:blue;" for="{{entry["primarykey"]}}_image_upload">Upload Image</label></form>{% endif %}</td>
+                <div class="table-container" id="specialtable">
+                    <table>
+                        <thead class="fixed-header">
+                            <tr><th>Sr.</th>
+                                <th class="inv_head"><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=entry_order">Entry No.</a></th>
+                                <th class="inv_head"><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=code">Code</a></th>
+                                <th class="inv_head"><a href="invoice?view=invoice_manager&invoice_id={{invoice_data['invoice_id']}}&sort=description">Description</a></th>
+                                <th class="inv_head">Size</th>
+                                <th class="inv_head">Packing</th>
+                                <th class="inv_head">Quantity</th>
+                                <th class="inv_head">Unit</th>
+                                <th class="inv_head">Unit Price</th>
+                                <th class="inv_head">Total</th>
+                                <th class="inv_head">Purchase Price</th>
+                                <th class="inv_head">Notes</th>
+                                <th class="inv_head">Vachet SP</th>
+                                <th class="inv_head">Current Stock</th>
+                                <th  class="inv_head" colspan="3" style="text-align: center;">Actions</th>
                             </tr>
-                        {% else %}
-                            <tr>
-                                <td class="light">{{loop.index}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_order'>{{entry["entry_order"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_code'><a href="/find?type=indi&query={{entry['code']}}">{{entry["code"]}}</a></td>
-                                <td class="light" id='{{entry["primarykey"]}}_description'>{{entry["description"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_size'>{{entry["size"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_packing'>{{entry["packing"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_quantity'>{{entry["quantity"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_unit'>{{entry["unit"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_price'>{{entry["price"]}}</td>
-                                <td class="light" >{{entry["total"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_purchase'>{{entry["purchase_price"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_notes'>{{entry["notes"]}}</td>
-                                <td class="light" >{{entry["stock"]}}</td>
-                                <td class="light" id='{{entry["primarykey"]}}_edit'><button class="button" id="btn-edit" onClick="edit_item({{entry['primarykey']}})">Edit</button></td>
-                                <td class="light" id='{{entry["primarykey"]}}_delete'><button class="button" id="btn-delete" onClick="delete_item({{entry['primarykey']}})">Delete</button></td>
-                                <td class="light" id='{{entry["primarykey"]}}_image'>{% if entry["image_path"] %}<label style="color:red;" onClick="image_delete({{entry["primarykey"]}})">Delete Image</label>{% else %}<form id="{{entry["primarykey"]}}_imageform" action='/invoice?view=add_image&content_id={{entry["primarykey"]}}' method="POST"  enctype="multipart/form-data"><input type="file" name="image" id="{{entry["primarykey"]}}_image_upload"  style="display:none;" accept="image/png, image/gif, image/jpeg" onchange="image_upload({{entry["primarykey"]}})" /><label style="color:blue;" for="{{entry["primarykey"]}}_image_upload">Upload Image</label></form>{% endif %}</td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                    <tr><td colspan="16"></td></tr>
-                    <tr><td colspan="9">Total</td><td>{{Gtotal}}</td></tr>
-                    <tr><td colspan="9">VAT @ 5%</td><td>{{VAT}}</td></tr>
-                    <tr><td colspan="9">Total with VAT</td><td>{{FinalTotal}}</td></tr>
-                </table>
-            {% else %}
+                        </thead>
+                        <tbody>
+                            {% for entry in data %}
+                                {% if loop.index % 2 == 0 %}
+                                    <tr>
+                                        <td class="dark" id='{{entry["primarykey"]}}_serial'>{{loop.index}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_order'>{{entry["entry_order"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_code'><a href="/find?type=indi&query={{entry['code']}}" id='{{entry["primarykey"]}}_code_link'>{{entry["code"]}}</a></td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_description'>{{entry["description"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_size'>{{entry["size"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_packing'>{{entry["packing"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_quantity'>{{entry["quantity"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_unit'>{{entry["unit"]}}</td>
+                                        <td class="dark right" id='{{entry["primarykey"]}}_price'>{{entry["price"]}}</td>
+                                        <td class="dark right" id='{{entry["primarykey"]}}_total'>{{entry["total"]}}</td>
+                                        <td class="dark right" id='{{entry["primarykey"]}}_purchase'>{{entry["purchase_price"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_notes'>{{entry["notes"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_sp'>{{entry["sp"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_stock'>{{entry["stock"]}}</td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_edit'><button class="button" id="btn-edit" onClick="edit_item({{entry['primarykey']}})">Edit</button></td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_delete'><button class="button" id="btn-delete" onClick="delete_item({{entry['primarykey']}})">Delete</button></td>
+                                        <td class="dark" id='{{entry["primarykey"]}}_image'>{% if entry["image_path"] %}<button class="button" onClick="image_delete({{entry["primarykey"]}})">Delete Image</button>{% else %}<form id="{{entry["primarykey"]}}_imageform" action='/invoice?view=add_image&content_id={{entry["primarykey"]}}' method="POST"  enctype="multipart/form-data"><input type="file" name="image" id="{{entry["primarykey"]}}_image_upload" style="display: none;" accept="image/png, image/gif, image/jpeg" onchange="image_upload({{entry["primarykey"]}})" /><button type="button" class="button" onclick="document.getElementById('{{entry["primarykey"]}}_image_upload').click()">Upload Image</button></form>{% endif %}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="light" id='{{entry["primarykey"]}}_serial'>{{loop.index}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_order'>{{entry["entry_order"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_code'><a href="/find?type=indi&query={{entry['code']}}" id='{{entry["primarykey"]}}_code_link'>{{entry["code"]}}</a></td>
+                                        <td class="light" id='{{entry["primarykey"]}}_description'>{{entry["description"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_size'>{{entry["size"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_packing'>{{entry["packing"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_quantity'>{{entry["quantity"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_unit'>{{entry["unit"]}}</td>
+                                        <td class="light right" id='{{entry["primarykey"]}}_price'>{{entry["price"]}}</td>
+                                        <td class="light right" id='{{entry["primarykey"]}}_total'>{{entry["total"]}}</td>
+                                        <td class="light right" id='{{entry["primarykey"]}}_purchase'>{{entry["purchase_price"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_notes'>{{entry["notes"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_sp'>{{entry["sp"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_stock'>{{entry["stock"]}}</td>
+                                        <td class="light" id='{{entry["primarykey"]}}_edit'><button class="button" id="btn-edit" onClick="edit_item({{entry['primarykey']}})">Edit</button></td>
+                                        <td class="light" id='{{entry["primarykey"]}}_delete'><button class="button" id="btn-delete" onClick="delete_item({{entry['primarykey']}})">Delete</button></td>
+                                        <td class="light" id='{{entry["primarykey"]}}_image'>{% if entry["image_path"] %}<button class="button" onClick="image_delete({{entry["primarykey"]}})">Delete Image</button>{% else %}<form id="{{entry["primarykey"]}}_imageform" action='/invoice?view=add_image&content_id={{entry["primarykey"]}}' method="POST"  enctype="multipart/form-data"><input type="file" name="image" id="{{entry["primarykey"]}}_image_upload" style="display: none;" accept="image/png, image/gif, image/jpeg" onchange="image_upload({{entry["primarykey"]}})" /><button type="button" class="button" onclick="document.getElementById('{{entry["primarykey"]}}_image_upload').click()">Upload Image</button></form>{% endif %}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            <tr><td colspan="16"></td></tr>
+                            <tr><td colspan="9">Total</td><td id="cumulative_total" class="right">{{Gtotal}}</td></tr>
+                            <tr><td colspan="9">VAT @ 5%</td><td id="vat" class="right">{{VAT}}</td></tr>
+                            <tr><td colspan="9">Total with VAT</td><td id="grand_total" class="right">{{FinalTotal}}</td></tr>
+                        </tbody>
+                    </table>
+                                {% else %}
                 <p>No items. To add items search the product then click on add to list.</p>
             {% endif %}
             <br>
             <div id="add_product_div"><button class="button" id="button_add" onClick=add_new_item({{invoice_data['invoice_id']}})>Add Item</button></div>
-            <br>
-            <div id="DIV1"><button class="button" onclick="CalcToggle()">Calculator</button></div>
             <br>
             {% if profit_percent != 0 %}
                 {% if margin_percent != 0 %}
@@ -121,7 +145,7 @@
             {% if invoice_data['narration']|length > 0 %}<br><p>Internal Narration : {{invoice_data['narration']}}</p>{% endif %}
             {% if invoice_data['narration_external']|length > 0 %}External Narration : <pre>{{invoice_data['narration_external']}}</pre>{% endif %}
             Created by: {{created_by}}
-            <br><br>
+                </div>
         </main>
         <footer class="footer">
             <div class="container" style="text-align: center;">
@@ -136,6 +160,52 @@
         <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
         <script>
             let edit_item_in_progress = false;
+            function number_formater(numberString){
+                numberString = parseFloat(numberString);
+                numberString = (numberString + 0.0000000001).toFixed(2);
+                numberString = String(numberString)
+                crossed_decimal = false;
+                let output = ""
+                for (i=0; i<numberString.length; i++){
+                    output = output + numberString[i];
+                    if (numberString[i] == "."){
+                        crossed_decimal = true;
+                    }
+                    if (crossed_decimal == false){
+                        let remaining_number = numberString.slice(i+1).split('.')[0];
+                        if (Number.isNaN(parseFloat(remaining_number)) == false){
+                            if (remaining_number.length % 3 == 0){
+                                output = output + ","
+                            }
+                        }
+                    }
+                }
+                return output;
+            }
+            function update_numbers(){
+                {% for entry in data %}
+                    document.getElementById(String({{entry["primarykey"]}}) + "_total").innerHTML = number_formater(document.getElementById(String({{entry["primarykey"]}}) + "_total").innerHTML);
+                    document.getElementById(String({{entry["primarykey"]}}) + "_price").innerHTML = number_formater(document.getElementById(String({{entry["primarykey"]}}) + "_price").innerHTML);
+                {% endfor %}
+                document.getElementById("cumulative_total").innerHTML = number_formater(document.getElementById("cumulative_total").innerHTML);
+                document.getElementById("vat").innerHTML = number_formater(document.getElementById("vat").innerHTML);
+                document.getElementById("grand_total").innerHTML = number_formater(document.getElementById("grand_total").innerHTML);
+            }
+            function iframe_action(invoice_id){
+                if (sessionStorage.getItem("reloaded") == "true"){
+                    try {
+                        let element = document.getElementById("specialtable")
+                        let scrollPosition = element.scrollTop;
+                        sessionStorage.setItem("element_scroll_required", "true");
+                        sessionStorage.setItem("element_scroll_value", scrollPosition);
+                      } catch (error) {}
+                    location.reload(true);
+                }
+            }
+            function add_new_item(invoice_id, type="table", query=""){
+                let current_find = document.getElementById("add_product_div");
+                current_find.innerHTML = '<button class="button" onClick=close_add(' + invoice_id + ')>Close</button><br><iframe width="100%" frameBorder="0" height="450px" src="/find?special=yes&query=' + query + '&type=' + type + '&invoice_id=' + invoice_id +'" name="addProductFrame" id="addProductFrame" onLoad="iframe_action(' + invoice_id + ')"></iframe>';
+            }
             if (sessionStorage.getItem("reloaded")){
                 add_new_item(sessionStorage.getItem("invoice_id"), sessionStorage.getItem("type"), sessionStorage.getItem("query"))
                 sessionStorage.removeItem("reloaded");
@@ -148,14 +218,12 @@
                 sessionStorage.removeItem("scroll_required");
                 sessionStorage.removeItem("scroll_value");
             }
-            function add_new_item(invoice_id, type="table", query=""){
-                let current_find = document.getElementById("add_product_div");
-                current_find.innerHTML = '<button class="button" onClick=close_add(' + invoice_id + ')>Close</button><br><iframe width="100%" frameBorder="0" height="450px" src="/find?special=yes&query=' + query + '&type=' + type + '&invoice_id=' + invoice_id +'" name="addProductFrame" id="addProductFrame" onLoad="iframe_action(' + invoice_id + ')"></iframe>';
-            }
-            function iframe_action(invoice_id){
-                if (sessionStorage.getItem("reloaded") == "true"){
-                    location.reload(true);
-                }
+            if (sessionStorage.getItem("element_scroll_required")){
+                let scrollValue = parseInt(sessionStorage.getItem("element_scroll_value"));
+                let element = document.getElementById("specialtable")
+                element.scrollTop = scrollValue;
+                sessionStorage.removeItem("element_scroll_required");
+                sessionStorage.removeItem("element_scroll_value");
             }
             function close_add(invoice_id){
                 location.reload(true);
@@ -164,40 +232,51 @@
                 location.reload(true);
             }
             function delete_item_confirm(content_id){
-                if (window.pageYOffset > 0){
-                    sessionStorage.setItem("scroll_required", "true");
-                    sessionStorage.setItem("scroll_value", window.pageYOffset);
-                }
+                let element = document.getElementById("specialtable")
+                let scrollPosition = element.scrollTop;
+                sessionStorage.setItem("element_scroll_required", "true");
+                sessionStorage.setItem("element_scroll_value", scrollPosition);
                 const form = document.createElement('form');
                 form.method = 'post';
                 form.action = "/invoice?view=delete_invoice_content&content_id=" + content_id;
                 document.body.appendChild(form);
                 form.submit();
             }
+            function row_highlighter(content_id){
+                let ids = ['_serial', '_order', '_code', '_description', '_size', '_packing', '_quantity', '_unit', '_price', '_total', '_purchase', '_stock', '_notes', '_edit', '_delete', '_image','_sp']
+                for (let i=0; i<ids.length; i++){
+                    document.getElementById(content_id + ids[i]).style.color = "white";
+                    document.getElementById(content_id + ids[i]).style.backgroundColor = "red";
+                }
+                document.getElementById(content_id + "_code_link").style.color = "white";
+                
+            }
             function delete_item(content_id){
                 if (edit_item_in_progress == false){
                     edit_item_in_progress = true;
-                    document.getElementById(content_id+"_delete").innerHTML = '<img src="{{ url_for("static",filename="yes.png") }}" onClick="delete_item_confirm(' + content_id +')">&nbsp;&nbsp;<img src="{{ url_for("static",filename="no.png") }}" onClick="cancel()"">'
+                    row_highlighter(content_id)
+                    document.getElementById(content_id+"_delete").innerHTML = '<button class="button" onClick="delete_item_confirm(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
                 }
             }
             function image_upload(content_id){
-                if (window.pageYOffset > 0){
-                    sessionStorage.setItem("scroll_required", "true");
-                    sessionStorage.setItem("scroll_value", window.pageYOffset);
-                }
+                let element = document.getElementById("specialtable")
+                let scrollPosition = element.scrollTop;
+                sessionStorage.setItem("element_scroll_required", "true");
+                sessionStorage.setItem("element_scroll_value", scrollPosition);
                 document.getElementById(content_id+"_imageform").submit()
             }
             function image_delete(content_id){
                 if (edit_item_in_progress == false){
                     edit_item_in_progress = true;
-                    document.getElementById(content_id+"_image").innerHTML = '<img src="{{ url_for("static",filename="yes.png") }}" onClick="delete_image_confirm(' + content_id +')">&nbsp;&nbsp;<img src="{{ url_for("static",filename="no.png") }}" onClick="cancel()"">'
+                    row_highlighter(content_id);
+                    document.getElementById(content_id+"_image").innerHTML = '<button class="button" onClick="delete_image_confirm(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
                 }
             }
             function delete_image_confirm(content_id){
-                if (window.pageYOffset > 0){
-                sessionStorage.setItem("scroll_required", "true");
-                sessionStorage.setItem("scroll_value", window.pageYOffset);
-            }
+                let element = document.getElementById("specialtable")
+                let scrollPosition = element.scrollTop;
+                sessionStorage.setItem("element_scroll_required", "true");
+                sessionStorage.setItem("element_scroll_value", scrollPosition);
                 const form = document.createElement('form');
                 form.method = 'post';
                 form.action = "/invoice?view=del_image&content_id=" + content_id;
@@ -215,20 +294,45 @@
                 }
                 return output_string
             }
-            function edit_item(content_id){                
+
+            function edit_item(content_id){      
+                
+                function edit_item_input_generation(id_table, type, name, id_input){
+                    if (type == 'number'){
+                        document.getElementById(id_table).innerHTML = '<input class="input" type="number" STEP="0.01" id="' + id_input + '" name="' + name + '" required value="' + string_fixer(document.getElementById(id_table).textContent).replace(",","") + '" style="width:'+ String((document.getElementById(id_table).textContent.length * 8) + 50) +'px" />'
+                    } else {
+                        document.getElementById(id_table).innerHTML = '<input class="input" type="text" id="' + id_input + '" name="' + name + '" required value="' + string_fixer(document.getElementById(id_table).textContent) + '"  style="width:'+ String((document.getElementById(id_table).textContent.length * 8) + 50) +'px" />'
+                    }
+                }          
                 if (edit_item_in_progress == false){
                     edit_item_in_progress = true;
-                    document.getElementById(content_id+'_order').innerHTML = '<input class="input" type="number" STEP="0.01" id="' + content_id + 'entry_order" name="entry_order" required value="' + string_fixer(document.getElementById(content_id+"_order").textContent) + '" style="width:50px" />'
-                    document.getElementById(content_id+'_code').innerHTML = '<input class="input" type="text" id="' + content_id + 'code" name="code" required value="' + string_fixer(document.getElementById(content_id+"_code").textContent) + '"  style="width:75px" />'
-                    document.getElementById(content_id+'_description').innerHTML = '<input class="input" type="text" id="' + content_id + 'description" name="description" required value="' + string_fixer(document.getElementById(content_id+"_description").textContent) + '" style="width:400px" />'
-                    document.getElementById(content_id+'_size').innerHTML = '<input class="input" type="text" id="' + content_id + 'size" name="size" value="' + string_fixer(document.getElementById(content_id+"_size").textContent) + '" style="width:90px" />'
-                    document.getElementById(content_id+'_packing').innerHTML = '<input class="input" type="text" id="' + content_id + 'packing" name="packing" value="' + string_fixer(document.getElementById(content_id+"_packing").textContent) + '" style="width:90px" />'
-                    document.getElementById(content_id+'_quantity').innerHTML = '<input class="input" type="number" step="0.01" id="' + content_id + 'quantity" name="quantity" required value="' + string_fixer(document.getElementById(content_id+"_quantity").textContent) + '" style="width:75px" />'
-                    document.getElementById(content_id+'_unit').innerHTML = '<input class="input" type="text" id="' + content_id + 'unit" name="unit" required value="' + string_fixer(document.getElementById(content_id+"_unit").textContent) + '" style="width:60px" />'
-                    document.getElementById(content_id+'_price').innerHTML = '<input class="input" type="number" step="0.01" id="' + content_id + 'price" name="price" required value="' + string_fixer(document.getElementById(content_id+"_price").textContent) + '" style="width:70px" />'
-                    document.getElementById(content_id+'_purchase').innerHTML = '<input class="input" type="number" id="' + content_id + 'purchase_price" name="purchase_price" step="0.0001" value="' + string_fixer(document.getElementById(content_id+"_purchase").textContent) + '" style="width:80px" />'
-                    document.getElementById(content_id+'_notes').innerHTML = '<input class="input" type="text" id="' + content_id + 'notes" name="notes" value="' + string_fixer(document.getElementById(content_id+"_notes").textContent) + '" style="width:200px" />'
-                    document.getElementById(content_id+'_edit').innerHTML = '<img src="{{ url_for("static",filename="yes.png") }}" onClick="submitform(' + content_id +')">&nbsp;&nbsp;<img src="{{ url_for("static",filename="no.png") }}" onClick="cancel()"">'
+                    row_highlighter(content_id);
+
+                    edit_item_input_generation(content_id+'_order', 'number', 'entry_order', content_id + 'entry_order');
+                    edit_item_input_generation(content_id+'_code', 'text', 'code', content_id + 'code');
+                    edit_item_input_generation(content_id+'_description', 'text', 'description', content_id + 'description');
+                    edit_item_input_generation(content_id+'_size', 'text', 'size', content_id + 'size');
+                    edit_item_input_generation(content_id+'_packing', 'text', 'packing', content_id + 'packing');
+                    edit_item_input_generation(content_id+'_quantity', 'number', 'quantity', content_id + 'quantity');
+                    edit_item_input_generation(content_id+'_unit', 'text', 'unit', content_id + 'unit');
+                    edit_item_input_generation(content_id+'_price', 'number', 'price', content_id + 'price');
+                    edit_item_input_generation(content_id+'_purchase', 'number', 'purchase_price', content_id + 'purchase_price');
+                    edit_item_input_generation(content_id+'_notes', 'text', 'notes', content_id + 'notes');
+                
+                    //document.getElementById(content_id+'_order').innerHTML = '<input class="input" type="number" STEP="0.01" id="' + content_id + 'entry_order" name="entry_order" required value="' + string_fixer(document.getElementById(content_id+"_order").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_order").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_code').innerHTML = '<input class="input" type="text" id="' + content_id + 'code" name="code" required value="' + string_fixer(document.getElementById(content_id+"_code").textContent) + '"  style="width:'+ String((document.getElementById(content_id+"_code").textContent.length * 8) + 20) +'px" />'
+                    //document.getElementById(content_id+'_description').innerHTML = '<input class="input" type="text" id="' + content_id + 'description" name="description" required value="' + string_fixer(document.getElementById(content_id+"_description").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_description").textContent.length * 8) + 30) +'px" />'
+                    //document.getElementById(content_id+'_size').innerHTML = '<input class="input" type="text" id="' + content_id + 'size" name="size" value="' + string_fixer(document.getElementById(content_id+"_size").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_size").textContent.length * 7) + 30) +'px" />'
+                    //document.getElementById(content_id+'_packing').innerHTML = '<input class="input" type="text" id="' + content_id + 'packing" name="packing" value="' + string_fixer(document.getElementById(content_id+"_packing").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_packing").textContent.length * 7) + 30) +'px" />'
+                    //document.getElementById(content_id+'_quantity').innerHTML = '<input class="input" type="number" step="0.01" id="' + content_id + 'quantity" name="quantity" required value="' + string_fixer(document.getElementById(content_id+"_quantity").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_quantity").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_unit').innerHTML = '<input class="input" type="text" id="' + content_id + 'unit" name="unit" required value="' + string_fixer(document.getElementById(content_id+"_unit").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_unit").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_price').innerHTML = '<input class="input" type="number" step="0.01" id="' + content_id + 'price" name="price" required value="' + string_fixer(document.getElementById(content_id+"_price").textContent.replace(",","")) + '" style="width:'+ String((document.getElementById(content_id+"_price").textContent.length * 10) + 20) +'px" />'
+                    //document.getElementById(content_id+'_purchase').innerHTML = '<input class="input" type="number" id="' + content_id + 'purchase_price" name="purchase_price" step="0.0001" value="' + string_fixer(document.getElementById(content_id+"_purchase").textContent.replace(",","")) + '" style="width:'+ String((document.getElementById(content_id+"_purchase").textContent.length * 10) + 10) +'px" />'
+                    //document.getElementById(content_id+'_notes').innerHTML = '<input class="input" type="text" id="' + content_id + 'notes" name="notes" value="' + string_fixer(document.getElementById(content_id+"_notes").textContent) + '" style="width:'+ String((document.getElementById(content_id+"_notes").textContent.length * 10) + 50) +'px" />'
+                    //document.getElementById(content_id+'_edit').innerHTML = '<button class="button" onClick="submitform(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
+
+                    document.getElementById(content_id+'_edit').innerHTML = '<button class="button" onClick="submitform(' + content_id +')">&#10003;</button>&nbsp;<button class="button" onClick="cancel()">&#128473;</button>'
+                    // document.getElementById(content_id+'_edit').innerHTML = '<img src="{{ url_for("static",filename="yes.png") }}" onClick="submitform(' + content_id +')">&nbsp;&nbsp;<img src="{{ url_for("static",filename="no.png") }}" onClick="cancel()"">'
                 }
                 document.addEventListener('keyup', (e) => {
                     if (e.code === "NumpadEnter" || e.code === "Enter"){
@@ -237,14 +341,15 @@
                 });
             }
             function submitform(content_id){
-                if (window.pageYOffset > 0){
-                    sessionStorage.setItem("scroll_required", "true");
-                    sessionStorage.setItem("scroll_value", window.pageYOffset);
-                }
+                let element = document.getElementById("specialtable")
+                let scrollPosition = element.scrollTop;
+                sessionStorage.setItem("element_scroll_required", "true");
+                sessionStorage.setItem("element_scroll_value", scrollPosition);
                 let form = document.createElement('form');
                 form.method = 'post';
                 form.action = "/invoice?view=edit_invoice_content&content_id=" + content_id;
                 form.style.visibility = 'hidden';
+                
                 let entry_order = document.createElement('input');
                 entry_order.type = 'number';
                 entry_order.name = "entry_order";
@@ -290,7 +395,12 @@
                 let price = document.createElement('input');
                 price.type = 'number';
                 price.name = "price";
-                price.value = document.getElementById(content_id + "price").value
+                console.log(document.getElementById(content_id + "price").value);
+                if (document.getElementById(content_id + "price").value > 0){
+                 price.value = document.getElementById(content_id + "price").value
+                } else (
+                    price.value = 0
+                )
                 form.appendChild(price);
 
                 let purchase_price = document.createElement('input');
@@ -308,7 +418,7 @@
                 document.body.appendChild(form);
                 form.submit();
             }
-          
+            update_numbers();
         </script>
     </body>
 </html>

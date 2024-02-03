@@ -18,7 +18,7 @@
     <body>
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="/">Company Name</a>
+                <a class="navbar-brand" href="/">Quote Craft</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -147,9 +147,13 @@
                 </form>
                 <br><br>
                 <table>
-                    <tr><th>Sr.</th><th>Customer Name</th><th>Invoice ID</th><th>Code</th><th>Description</th><th>Size</th><th>Packing</th><th>Price</th><th>Quantity</th><th>Notes</th><th>Unit</th><th>Total</th></tr>
+                    <tr><th class="history">Sr.</th><th class="history">Customer Name</th><th class="history">Invoice ID</th><th class="history">Code</th><th class="history">Description</th><th class="history">Size</th><th class="history">Packing</th><th class="history">Quantity</th><th class="history">Unit</th><th class="history">Unit Price</th><th class="history">Total</th><th class="history">Purchase Price</th><th class="history">Notes</th></tr>
                     {% for entry in data %}
-                        <tr><td>{{loop.index}}</td><td><a href="/invoice?view=invoice_list&customer_id={{entry[0]}}">{{entry[1]}}</a></td><td><a href="/invoice?view=invoice_manager&invoice_id={{entry[2]}}">{{entry[2]}}</a></td><td><a href="/find?type=indi&query={{entry[3]}}">{{entry[3]}}</a></td><td>{{entry[4]}}</td><td>{{entry[5]}}</td><td>{{entry[6]}}</td><td>{{entry[7]}}</td><td>{{entry[8]}}</td><td>{{entry[9]}}</td><td>{{entry[10]}}</td><td>{{entry[11]}}</td></tr>
+                        {% if loop.index % 2 == 0 %}
+                            <tr><td class="history dark">{{loop.index}}</td><td class="history dark"><a href="/invoice?view=invoice_list&customer_id={{entry[0]}}">{{entry[1] | truncate(20)}}</a></td><td class="history dark"><a href="/invoice?view=invoice_manager&invoice_id={{entry[2]}}">{{entry[2]}}</a></td><td class="history dark"><a href="/find?type=indi&query={{entry[3]}}">{{entry[3]}}</a></td><td class="history dark">{{entry[4] | truncate(50)}}</td><td class="history dark">{{entry[5] | truncate(10)}}</td><td class="history dark">{{entry[6]}}</td><td class="history dark">{{entry[8]}}</td><td class="history dark">{{entry[10]}}</td><td class="history dark">{{entry[7]}}</td><td class="history dark">{{entry[11]}}</td><td class="history dark">{{entry[12]}}</td><td class="history dark">{{entry[9] | truncate(30)}}</td></tr>
+                        {% else %}
+                            <tr><td class="history light">{{loop.index}}</td><td class="history light"><a href="/invoice?view=invoice_list&customer_id={{entry[0]}}">{{entry[1] | truncate(20)}}</a></td><td class="history light"><a href="/invoice?view=invoice_manager&invoice_id={{entry[2]}}">{{entry[2]}}</a></td><td class="history light"><a href="/find?type=indi&query={{entry[3]}}">{{entry[3]}}</a></td><td class="history light">{{entry[4] | truncate(50)}}</td><td class="history light">{{entry[5] | truncate(10)}}</td><td class="history light">{{entry[6]}}</td><td class="history light">{{entry[8]}}</td><td class="history light">{{entry[10]}}</td><td class="history light">{{entry[7]}}</td><td class="history light">{{entry[11]}}</td><td class="history light">{{entry[12]}}</td><td class="history light">{{entry[9] | truncate(30)}}</td></tr>
+                        {% endif %}
                     {% endfor %}
                 </table>
             {% endif %}

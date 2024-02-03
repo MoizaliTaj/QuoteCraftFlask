@@ -1,0 +1,31 @@
+body{
+  background-color: white;
+  font-size: Medium;
+  color: black;
+}
+.container-fluid {
+  background-color: white;
+  font-size: Medium;
+  color: black;
+}
+.nav-foot {
+  background-color: #00469b;
+  color: White;
+}
+.center {
+  text-align: center;
+}
+
+a {
+  font-weight: bold;
+  text-decoration: none;
+  font-size: Medium;
+  color: #00469b;
+}
+a:hover {
+  text-decoration: none;
+  font-size: Medium;
+  color: #e60519;
+  font-weight: bold;
+}
+
