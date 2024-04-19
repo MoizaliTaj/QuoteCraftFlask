@@ -11,7 +11,12 @@ class Config():
 
 
 class LocalDevelopmentConfig(Config):
-    SQLITE_DB_DIR = os.path.join(basedir, "../db_directory")
+    SQLITE_DB_DIR = os.path.join(basedir, "../db_directory/db")
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(SQLITE_DB_DIR, "database.sqlite3")
-    SQLALCHEMY_BINDS = {'performa': "sqlite:///" + os.path.join(SQLITE_DB_DIR, "performa.sqlite3"),}
+    SQLALCHEMY_BINDS = {
+        'quotes': "sqlite:///" + os.path.join(SQLITE_DB_DIR, "quotes.sqlite3"),
+        'phone_book': "sqlite:///" + os.path.join(SQLITE_DB_DIR, "phone_book.sqlite3"),
+        'logs': "sqlite:///" + os.path.join(SQLITE_DB_DIR, "logs.sqlite3"),
+        'other': "sqlite:///" + os.path.join(SQLITE_DB_DIR, "other.sqlite3"),
+    }
     DEBUG = True

@@ -5,15 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="description" content="">
         <meta name="author" content="">
-        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='media/favicon.ico') }}">
         <title>{{title}}</title>
         <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
         <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}" >
         <!-- Custom styles for this template -->
-        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
-        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
-        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/sticky-footer-navbar.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}" >
     </head>
     <body>
         <header>
@@ -37,70 +36,33 @@
             {% if type=='login' %}
                 <p>username or password did not match.</p>
                 <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
-            {% elif type=='customer_name_clash' %}
-                <p>This Customer is already added to the system. To create a new proforma for this customer. click on the customers name in the list and add new proforma.<br>Redirecting back to add a new customer</p>
-                <meta http-equiv="Refresh" content="3; url='/invoice?view=customer_list'" />
-            {% elif type=='customer_name_clash_update' %}
-                <p>There is an existing customer with same name. Customer name must me unique</p>
-                <meta http-equiv="Refresh" content="3; url='/invoice?view=update_customer&customer_id={{customerID}}'" />
-            {% elif type=='customer_added' %}
-                <p>Customer added successfully. Redirecting to Proforma.</p>
-                <meta http-equiv="Refresh" content="3; url='/invoice?view=customer_list'" />
-            {% elif type=='no_customer' %}
-                <p>Customer not found. Redirecting to Proforma.</p>
-                <meta http-equiv="Refresh" content="3; url='/invoice?view=customer_list'" />
-            {% elif type=='customer_update_success' %}
-                <p>Details Updated successfully. Redirecting to Proforma</p>
-                <meta http-equiv="Refresh" content="2; url='/invoice?view=invoice_list&customer_id={{custid}}'" />
-            {% elif type=='invoice_added' %}
-                <p>New Invoice added. Redirecting to Invoice List.</p>
-                <meta http-equiv="Refresh" content="2; url='/invoice?view=invoice_list&customer_id={{cust_id}}'" />
-            {% elif type=='product_delete_confirmation' %}
-                <p>Are you sure you want to delete this item?</p>
-                <h5>Invoice ID: {{data['invoice_id']}}</h5>
-                <h7>Code: {{data['code']}}</h7><br>
-                <h7>Description: {{data['description']}}</h7><br><br>
-                <table style="border:0px;"><tr style="border:0px;"><td style="border:0px;"><form  action="/invoice?view=delete_invoice_content&content_id={{primarykey}}" method="POST"><input type="submit" class="button" value = "Yes, Delete"></form></td><td style="border:0px;"><a href="/invoice?view=invoice_manager&invoice_id={{invoice_id}}"><button class="button">No, Do not Delete</button></a></td></tr></table>
-            {% elif type=='invoice_updated' %}
-                <p>Invoice Updated. Redirecting to Invoice.</p>
-                <meta http-equiv="Refresh" content="2; url='/invoice?view=invoice_manager&invoice_id={{invoice_id}}'" />
-            {% elif type=='invoice_delete' %}
-                <h5>Customer Name : {{customername}}</h5>
-                <h5>Invoice ID : {{invoiceid}}</h5>
-                Are you sure you want to delete? This cannot be undone.
-                <table  style="border:0px;"><tr style="border:0px;"><td style="border:0px;"><form  action="/invoice?view=invoice_delete&invoice_id={{invoiceid}}" method="POST"><input  class="button" type="submit" value = "Yes, Delete"></form></td><td style="border:0px;"><a href="/invoice?view=invoice_list&customer_id={{cust_id}}"><button class="button">No, Do not Delete</button></a></td></tr></table>
-            {% elif type=='invoice_deleted_done' %}
-                <p>Invoice Deleted. Redirecting.</p>
-                <meta http-equiv="Refresh" content="2; url='/invoice?view=invoice_list&customer_id={{custid}}'" />
             {% elif type=='current_password_incorrect' %}
                 <p>Incorrect details entered.</p>
                 <meta http-equiv="Refresh" content="2; url='/change_password'" />
             {% elif type=='password_changed' %}
                 <p>Password changed. Kindly re login</p>
                 <meta http-equiv="Refresh" content="2; url='/'" />
+            {% elif type=='customer_name_clash' %}
+                <p>This Customer is already added to the system. To create a new proforma for this customer. click on the customers name in the list and add new proforma.<br>Redirecting back to add a new customer</p>
+                <meta http-equiv="Refresh" content="3; url='/invoice?view=customer_list'" />
+            {% elif type=='customer_name_clash_update' %}
+                <p>There is an existing customer with same name. Customer name must me unique</p>
+                <meta http-equiv="Refresh" content="3; url='/invoice?view=update_customer&customer_id={{customerID}}'" />
+            {% elif type=='no_customer' %}
+                <p>Customer not found. Redirecting to Proforma.</p>
+                <meta http-equiv="Refresh" content="3; url='/invoice?view=customer_list'" />
+            {% elif type=='invoice_delete' %}
+                <h5>Customer Name : {{customername}}</h5>
+                <h5>Invoice ID : {{invoiceid}}</h5>
+                Are you sure you want to delete? This cannot be undone.
+                <table  style="border:0px;"><tr style="border:0px;"><td style="border:0px;"><form  action="/invoice?view=invoice_delete&invoice_id={{invoiceid}}" method="POST"><input  class="button" type="submit" value = "Yes, Delete"></form></td><td style="border:0px;"><a href="/invoice?view=invoice_list&customer_id={{cust_id}}"><button class="button">No, Do not Delete</button></a></td></tr></table>
             {% elif type=='invoice_master_no_match' %}
                 <p>Incorrect URL. Redirecting to Customer List</p>
-                <meta http-equiv="Refresh" content="2; url='/invoice?view=customer_list'" />
+                <meta http-equiv="Refresh" content="2; url='/quotations'" />
             {% elif type=='phone_index_clash' %}
                 <p>This Business is already in phone book</p>
                 <p>Redirecting to phone book.</p>
                 <meta http-equiv="Refresh" content="3; url='/phone'" />
-            {% elif type=='phone_index_added' %}
-                <p>Business added to phone book</p>
-                <p>Redirecting to phone book.</p>
-                <meta http-equiv="Refresh" content="3; url='/phone'" />
-            {% elif type=='number_added' %}
-                <p>Number added to phone book</p>
-                <p>Redirecting to phone book.</p>
-                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
-            {% elif type=='number_updated' %}
-                <p>Number updated to phone book</p>
-                <p>Redirecting to phone book.</p>
-                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
-            {% elif type=='number_deleted' %}
-                <p>Number Deleted</p>
-                <p>Redirecting to phone book.</p>
-                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
             {% elif type=='duplicate_salesman' %}
                 <p>Duplicate Salesman</p>
                 <meta http-equiv="Refresh" content="3; url='/invoice?view=customer_list'" />
@@ -108,25 +70,20 @@
                 <p>Salesman Added</p>
                 <p>Redirecting to update customer page</p>
                 <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
-            {% elif type=='salesman_added_1' %}
-                <p>Salesman Added</p>
-                <p>Redirecting to Proforma Invoice</p>
-                <meta http-equiv="Refresh" content="3; url='{{redirect_link}}'" />
+            {% elif type=='not_admin' %}
+                <p>You are not Authorised.</p>
+                <meta http-equiv="Refresh" content="3; url='/'" />
             {% elif type=='404' %}
                 <p>Not Found</p>
             {% endif %}
             <br><br>
         </main>
-        <footer class="footer">
-            <div class="container" style="text-align: center;">
-            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
-            </div>
-        </footer>
+        <footer class="footer">| Created by Moizali Taj | Last updated on {{last}} |</footer>
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
-        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
-        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     </body>
 </html>

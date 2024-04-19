@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{title}}</title>
-        <link rel="stylesheet" href="{{ url_for('static',filename='listprint.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/listprint.css') }}" >
         <script>
             function number_formater(numberString){
                 numberString = parseFloat(numberString);
@@ -46,14 +46,18 @@
     </head>
     <body>
         {% if data|length > 0 %}
-            <img class="header" src="{{ url_for('static',filename='header.png') }}" >
+            <img class="header" src="{{ url_for('static',filename='media/header.png') }}" >
             <div class="header_text">
                 {% if salesman_data['mobile_number']|length > 0 %}<a href="tel: {{salesman_data['mobile_number']}}" target="_blank" style="text-decoration:none;color:black;font-size:medium;">&#128241; {{salesman_data['mobile_number']}}</a> | {% endif %}
-                <a href="tel: 04 111 1111" target="_blank" style="text-decoration:none;color:black;font-size:medium;">&#9742; 04 111 1111</a> |
+                {% if salesman_data['landline_no']|length > 0 %}<a href="tel: {{salesman_data['landline_no']}}" target="_blank" style="text-decoration:none;color:black;font-size:medium;">&#9742; {{salesman_data['landline_no']}}</a> | {% endif %}
                 {% if salesman_data['email_id']|length > 0 %}<a href="mailto: {{salesman_data['email_id']}}" target="_blank" style="text-decoration:none;color:black;font-size:medium;">&#9993; {{salesman_data['email_id']}}</a> | {% endif %}
-                <a style="text-decoration:none;color:black;font-size:medium;">TRN 100000000000000</a>
+                <a style="text-decoration:none;color:black;font-size:medium;">TRN 100000000000001</a>
                 <br>
-                Proforma Invoice / Quotation
+                {% if type=='normal_proforma_only' %}
+                    Proforma Invoice
+                {% else %}
+                    Proforma Invoice / Quotation
+                {% endif %}
             </div>
             <div class="cust_details">
                 Customer Name : <strong>{{CustomerDetails['customer_name']}}</strong>
@@ -66,7 +70,7 @@
                 <br>
                 Reference # <strong>{{InvoiceDetails["invoice_id"]}}</strong>
             </div>
-            {% if type=='invoice_normal' %}
+            {% if type == 'normal' or type == 'normal_proforma_only' %}
                 <table class="tabledes">
                     <tr><th class="border fontcust center head">Sr.</th><th class="border fontcust center head">Code</th><th class="border fontcust center head">Description</th><th class="border fontcust center head">Quantity</th><th class="border fontcust center head">Unit</th><th class="border fontcust center head">Unit Price</th><th class="border fontcust center head">Total</th></tr>
                     {% for entry in data %}
@@ -76,13 +80,27 @@
                             <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["quantity"]}}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust right dark" id="rate_{{loop.index}}" >{{entry[2]["price"]}}</td><td class="border fontcust right dark" id="total_{{loop.index}}" >{{entry[2]["total"]}}</td></tr>
                         {% endif %}
                     {% endfor %}
-                    <tr><td colspan="4" class="left fontcust" rowspan="2" style="font-family: Calibri, sans-serif;font-size:medium;">Amount in words: <em>{{amount_in_words}}</em></td><td colspan="2" class="border center fontcust head">Total</td><td class="border right fontcust" style="padding:2px;" id="cumulative_total" >{{Gtotal}}</td></tr>
-                        <tr><td colspan="2" class="border center fontcust head">VAT @ 5%</td><td class="border right fontcust" style="padding:2px;" id="vat">{{VAT}}</td></tr>
-                        <tr><td colspan="4"></td><td colspan="2" class="border center fontcust head">Total with VAT</td><td class="border right fontcust" style="padding:2px;" id="grand_total">{{FinalTotal}}</td></tr>
+                    <tr><td colspan="4" class="left fontcust" rowspan="2" style="font-family: Calibri, sans-serif;font-size:medium;" id="td_amount_in_words"></td><td colspan="2" class="border center fontcust head">Total</td><td class="border right fontcust" style="padding:2px;" id="cumulative_total" ></td></tr>
+                        <tr><td colspan="2" class="border center fontcust head">VAT @ 5%</td><td class="border right fontcust" style="padding:2px;" id="vat"></td></tr>
+                        <tr><td colspan="4"></td><td colspan="2" class="border center fontcust head">Total with VAT</td><td class="border right fontcust" style="padding:2px;" id="grand_total"></td></tr>
                 </table>
                 <div class="notice" style="position: relative; top: -10px;">Salesman Name: {{salesman_data['salesman_name']}}<br> | Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
                 {% if data[0][1]["narration_external"]|length > 0 %}<pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -15px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
-            {% elif type=='invoice_exception' %}
+            {% elif type=='without_vat' %}
+                <table class="tabledes">
+                    <tr><th class="border fontcust center head">Sr.</th><th class="border fontcust center head">Code</th><th class="border fontcust center head">Description</th><th class="border fontcust center head">Quantity</th><th class="border fontcust center head">Unit</th><th class="border fontcust center head">Unit Price</th><th class="border fontcust center head">Total</th></tr>
+                    {% for entry in data %}
+                        {% if loop.index % 2 == 0 %}
+                            <tr><td class="border fontcust center light" >{{loop.index}}</td><td class="border fontcust center light">{{entry[2]["code"]}}</td><td class="border fontcust left light">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center light">{{entry[2]["quantity"]}}</td><td class="border fontcust center light">{{entry[2]["unit"]}}</td><td class="border fontcust right light" id="rate_{{loop.index}}" >{{entry[2]["price"]}}</td><td class="border fontcust right light" id="total_{{loop.index}}" >{{entry[2]["total"]}}</td></tr>
+                        {% else %}
+                            <tr><td class="border fontcust center dark">{{loop.index}}</td><td class="border fontcust center dark">{{entry[2]["code"]}}</td><td class="border fontcust left dark">{{entry[2]["description"]}}{% if entry[2]["size"]|length > 0 %}, {{entry[2]["size"]}}{% endif %}{% if entry[2]['image_path'] %}<br><img class="prod_img" src="{{ url_for('static',filename=entry[2]['image_path']) }}" >{% endif %}</td><td class="border fontcust center dark">{{entry[2]["quantity"]}}</td><td class="border fontcust center dark">{{entry[2]["unit"]}}</td><td class="border fontcust right dark" id="rate_{{loop.index}}" >{{entry[2]["price"]}}</td><td class="border fontcust right dark" id="total_{{loop.index}}" >{{entry[2]["total"]}}</td></tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr><td colspan="4" class="left fontcust" rowspan="2" style="font-family: Calibri, sans-serif;font-size:medium;" id="td_amount_in_words"></td><td colspan="2" class="border center fontcust head">Total</td><td class="border right fontcust" style="padding:2px;" id="cumulative_total" ></td></tr>
+                </table>
+                <div class="notice" style="position: relative; top: 0px;">Salesman Name: {{salesman_data['salesman_name']}}<br> | Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
+                {% if data[0][1]["narration_external"]|length > 0 %}<br><pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -15px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
+            {% elif type=='without_quantity' %}
                 <table class="tabledes">
                     <tr><th class="border fontcust center head">Sr.</th><th class="border fontcust center head">Code</th><th class="border fontcust center head">Description</th><th class="border fontcust center head">Unit</th><th class="border fontcust center head">Unit Price</th></tr>
                     {% for entry in data %}
@@ -94,17 +112,39 @@
                     {% endfor %}
                 </table>
                 <div class="notice">Salesman Name: {{salesman_data['salesman_name']}}<br> | Printed on {{print}}. | All the above prices are in UAE Dirhams. | Above quoted items are subject to prior sales. |</div>
-                {% if data[0][1]["narration_external"]|length > 0 %}<pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -10px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
+                {% if data[0][1]["narration_external"]|length > 0 %}<br><pre  style="font-family: Calibri, sans-serif;font-size:small;position: relative; top: -10px;">{{data[0][1]["narration_external"]}}</pre>{% endif %}
             {% endif %}
-<!--            <img src="{{ url_for('static',filename='stamp.png') }}" style="position: relative; top: -80px;left: 450px;">-->
         {% else %}
             <p>No items. To add items search the product then click on add to list.</p>
         {% endif %}
     </body>
     <script>window.print()</script>
-    {% if type=='invoice_normal' %}
-        <script>update_numbers({{data|length}})</script>
-    {% elif type=='invoice_exception' %}
+    <script src="{{ url_for('static',filename='js/convert_amount_to_words.js') }}"></script>
+    {% if type=='normal' or type=='normal_proforma_only' %}
+        <script>
+            let grand_total = 0;
+            {% for entry in data %}
+                current_field_total = {{entry[2]["total"]}};
+                grand_total += current_field_total;
+            {% endfor %}
+            document.getElementById("cumulative_total").textContent = grand_total;
+            document.getElementById("vat").textContent = (grand_total * 0.05).toFixed(2);
+            document.getElementById("grand_total").textContent = (grand_total * 1.05).toFixed(2);
+            document.getElementById("td_amount_in_words").textContent = "Amount in Words: " + convert_amount_to_words((grand_total * 1.05).toFixed(2));
+            update_numbers({{data|length}})
+        </script>
+
+    {% elif type=='without_vat' %}
+        <script>
+            let grand_total = 0;
+            {% for entry in data %}
+                current_field_total = {{entry[2]["total"]}};
+                grand_total += current_field_total;
+            {% endfor %}
+            document.getElementById("cumulative_total").textContent = number_formater(grand_total);
+            document.getElementById("td_amount_in_words").textContent = "Amount in Words: " + convert_amount_to_words((grand_total).toFixed(2));
+            update_numbers_({{data|length}})</script>
+    {% elif type=='without_quantity' %}
         <script>update_numbers_({{data|length}})</script>
     {% endif %}
 </html>

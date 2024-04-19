@@ -5,15 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="description" content="">
         <meta name="author" content="">
-        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='media/favicon.ico') }}">
         <title>{{title}}</title>
         <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
         <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}" >
         <!-- Custom styles for this template -->
-        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
-        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
-        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/sticky-footer-navbar.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}" >
     </head>
     <body>
         <header>
@@ -42,19 +41,12 @@
             <br><br>
             <hr>
         </main>
-        <footer class="footer">
-            <div class="container" style="text-align: center;">
-            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
-            </div>
-        </footer>
+        <footer class="footer">| Created by Moizali Taj | Last updated on {{last}} |</footer>
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
-        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
-        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     </body>
 </html>
-
-
-

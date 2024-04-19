@@ -5,15 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="description" content="">
         <meta name="author" content="">
-        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='favicon.ico') }}">
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='media/favicon.ico') }}">
         <title>{{title}}</title>
         <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer-navbar/">
         <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.min.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}" >
         <!-- Custom styles for this template -->
-        <link rel="stylesheet" href="{{ url_for('static',filename='sticky-footer-navbar.css') }}" >
-        <script src="{{ url_for('static',filename='home_search.js') }}"></script>
-        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/sticky-footer-navbar.css') }}" >
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}" >
     </head>
     <body>
         <header>
@@ -34,10 +33,7 @@
         <!-- Begin page content -->
         <main role="main" class="container-fluid" style="padding:80px 10px 10px 10px;">
             <br><br>
-            {% if type=='not_admin' %}
-                <p>You are not Authorised.</p>
-                <meta http-equiv="Refresh" content="3; url='/'" />
-            {% elif type=='admin_home' %}
+            {% if type=='admin_home' %}
                 <ul>
                     <li><a href="/admin?view=add_user">Add a new user</a></li>
                     <li><a href="/admin?view=update_user">Update existing user.</a></li>
@@ -47,6 +43,7 @@
                 <form  action="/admin?view=add_user" method="POST">
                     <table style="border:0px">
                         <tr style="border:0px"><td style="border:0px">Username</td><td style="border:0px"><input type="text" id="user" name="user" required /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">User Full Name</td><td style="border:0px"><input type="text" id="user_full_name" name="user_full_name" required /></td></tr>
                         <tr style="border:0px"><td style="border:0px">User Group</td><td style="border:0px"><input type="text" id="usergroup" name="usergroup" required /></td></tr>
                         <tr style="border:0px"><td style="border:0px">Type</td><td style="border:0px"><select name="type" id="type" required><option value="User">User</option><option value="Admin">Administrator</option></select></td></tr>
                         <tr style="border:0px"><td style="border:0px"></td><td style="border:0px"><input type="submit" value="Add User" class="button"></td></tr>
@@ -63,61 +60,116 @@
                 {% block userlist %}
                     {% if data|length > 0 %}
                         <p>Select user from the list below.</p>
-                        {% for entry in data %}
-                            <li><a href="/admin?view=update_user&user={{entry['user_name']}}">{{entry['user_name']}}</a></li>
-                        {% endfor %}
+                        <table>
+                            <tr><th>User Full Name</th><th>User ID</th><th>User Type</th><th>User Group</th><th>Action</th></tr>
+                            {% for entry in data %}
+                                <tr><td>{{entry['user_full_name']}}</td><td>{{entry['user_name']}}</td><td>{{entry['type']}}</td><td>{{entry['user_group']}}</td><td><a href="/admin?view=update_user&user_pk={{entry['primary_key']}}"><button class="button">Edit</button></a></td></tr>
+                            {% endfor %}
+                        </table>
                     {% else %}
                         <p>No users</p>
                     {% endif %}
                 {% endblock userlist%}
             {% elif type=='logs' %}
-                <a href="/admin?view=logs_excel"><button class="button">Export to CSV</button></a>
-                <br><br>
-                <table>
-                    <tr><th>Sr.</th><th>User</th><th>Delete Type</th><th>Date Time</th><th>Info</th></tr>
-                    {% for entry in data %}
-                        <tr><td>{{loop.index}}</td><td>{{entry["user"]}}</td><td>{{entry["delete_type"]}}</td><td>{{entry["date_time"]}}</td><td><pre>{{entry["info"]}}</pre></td></tr>
-                    {% endfor %}
-                </table>
+            <a href="/admin?view=logs_excel"><button class="button">Export to CSV</button></a><br><br>
+                {% if logs_data|length > 0 %}
+                    <div id="logs_table">
+                        <table>
+                        <tr><th colspan=6 style="text-align:center;">Logs</th></tr>
+                        <tr>
+                            <th>Sr.</th>
+                            <th>Date & Time</th>
+                            <th>User ID</th>
+                            <th>User Name</th>
+                            <th>IP Address</th>
+                            <th>Type</th>
+                        </tr>
+                        {% for logs in logs_data %}{% if loop.index % 2 == 0 %}<tr class="dark">{% else %}<tr class="light">{% endif %}
+                            <td>{{loop.index}}</td>
+                            <td>{{logs['date_time']}}</td>
+                            <td>{{logs['user']}}</td>
+                            <td>{{user_dict[logs['user']]}}</td>
+                            <td>{{logs['ip_address']}}</td>
+                            <td>{{logs['type']}}</td>
+                        </tr>{% endfor %}
+                    </table>
+                    </div>
+                {% else %}
+                    <div id="logs_table"><p>No Logs.</p></div>
+                {% endif %}
             {% elif type=='user_edit' %}
+            <a href="/admin?view=update_user" style="text-decoration:none; font-size:small;">&#x2190 Back to All Users</a>
                 <form  action="/admin?view=update_user" method="POST">
+                    <input type="number" id="primary_key" name="primary_key" value='{{userdata["primary_key"]}}' hidden />
                     <table style="border:0px">
-                        <tr style="border:0px"><td style="border:0px">Username</td><td style="border:0px"><input type="text" id="user" name="user" value='{{userdata["user_name"]}}' readonly /></td></tr>
-                        <tr style="border:0px"><td style="border:0px">UserGroup</td><td style="border:0px"><input type="text" id="usergroup" name="usergroup" value='{{userdata["user_group"]}}' required /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">Username</td><td style="border:0px"><input type="text" id="user_name" name="user_name" value='{{userdata["user_name"]}}' readonly /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">User Full Name</td><td style="border:0px"><input type="text" id="user_full_name" name="user_full_name" value='{{userdata["user_full_name"]}}' required /></td></tr>
+                        <tr style="border:0px"><td style="border:0px">User Group</td><td style="border:0px"><input type="text" id="user_group" name="user_group" value='{{userdata["user_group"]}}' required /></td></tr>
                         <tr style="border:0px"><td style="border:0px">Type</td><td style="border:0px"><select name="type" id="type" required><option value='{{userdata["type"]}}'>{{userdata["type"]}}</option>{% if userdata["type"] == 'User' %}<option value="Admin">Administrator</option>{% else %}<option value="User">User</option>{% endif %}</select></td></tr>
                         <tr style="border:0px"><td style="border:0px"></td><td style="border:0px"><input type="submit" class="button" value = "Update"></td></tr>
                     </table>
                 </form>
                 <br><br>
-                <a href='/admin?view=update_user_password&user={{userdata["user_name"]}}'><button class="button">Reset Password for {{userdata["user_name"]}}</button></a>
-            {% elif type=='user_update_success' %}
-                <p>Details updated succesfully.</p>
-                <meta http-equiv="Refresh" content="3; url='/admin'" />
+                <a href='/admin?view=update_user_password&user_pk={{userdata["primary_key"]}}'><button class="button">Reset Password for {{userdata["user_name"]}}</button></a>
+                <hr>
+                {% if logs_data|length > 0 %}
+                    <div id="logs_table">
+                        <table>
+                        <tr><th colspan=6 style="text-align:center;">Logs</th></tr>
+                        <tr>
+                            <th>Sr.</th>
+                            <th>Date & Time</th>
+                            <th>Admin User ID</th>
+                            <th>Admin User Name</th>
+                            <th>Type</th>
+                            <th>Details</th>
+                        </tr>
+                        {% for logs in logs_data %}{% if loop.index % 2 == 0 %}<tr class="dark">{% else %}<tr class="light">{% endif %}
+                            <td>{{loop.index}}</td>
+                            <td>{{logs['date_time']}}</td>
+                            <td>{{logs['user']}}</td>
+                            <td>{{user_dict[logs['user']]}}</td>
+                            <td>{{logs['type']}}</td>
+                            <td><pre>{{logs['details']}}</pre></td>
+                        </tr>{% endfor %}
+                    </table>
+                    </div>
+                {% else %}
+                    <div id="logs_table"><p>No Logs.</p></div>
+                {% endif %}
             {% elif type=='user_update_no_user' %}
                 <p>Error has occured. Try Again</p>
                 <meta http-equiv="Refresh" content="3; url='/admin?view=update_user'" />
             {% elif type=='change_password_permission' %}
-                <p>Are you sure you want to reset password for <strong>{{user_name}}</strong></p>
-                <table style="border:0px;"><tr style="border:0px;"><td style="border:0px;"><form action='/admin?view=update_user_password&user={{user_name}}' method="POST"><input type="submit" value="Yes Reset Password" class="button"></form></td><td style="border:0px;"><a href='/admin?view=update_user&user={{user_name}}'><button class="button">No</button></a></td></tr></table>
+                <form action='/admin?view=update_user_password' method="POST">
+                    <input type="number" id="primary_key" name="primary_key" value='{{user_data["primary_key"]}}' hidden />
+                    <p>Are you sure you want to reset password for<br>
+                        User ID: <strong>{{user_data['user_name']}}</strong><br>
+                        Full Name: <strong>{{user_data['user_full_name']}}</strong></p>
+                    <table style="border:0px;"><tr style="border:0px;">
+                        <td style="border:0px;">
+                            <input type="submit" value="Yes Reset Password" class="button">
+                        </td>
+                        <td style="border:0px;">
+                            <a href='/admin?view=update_user&user={{user_name}}'><button class="button">No</button></a>
+                        </td>
+                    </tr>
+                    </table>
+                </form>
             {% elif type=='change_password_confirmation' %}
-                <p>Password is succesfully reset for <strong>{{user_name}}</strong></p>
+                <p>Password is successfully reset for <br>
+                                    User ID: <strong>{{user_data['user_name']}}</strong><br>
+                                    Full Name: <strong>{{user_data['user_full_name']}}</strong></p>
                 <p>New login password is <input type="text" readonly value="{{new_password}}" /></p><br>
                 <p>Please note user will be prompted to change password on there next login</p>
             {% endif %}
         </main>
-        <footer class="footer">
-            <div class="container" style="text-align: center;">
-            <span class="text-muted">| Created by Moizali Taj | Last updated on {{last}} |</span>
-            </div>
-        </footer>
+        <footer class="footer">| Created by Moizali Taj | Last updated on {{last}} |</footer>
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="{{ url_for('static',filename='jquery-3.2.1.slim.min.js') }}"></script>
-        <script src="{{ url_for('static',filename='popper.min.js') }}"></script>
-        <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/jquery-3.2.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/popper.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     </body>
 </html>
-
-
-
